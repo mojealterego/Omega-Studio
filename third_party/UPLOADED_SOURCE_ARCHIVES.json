@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "note": "Uploaded source snapshots, not Android ARM64 executable packages",
+  "archives": [
+    {
+      "archive": "vscode-main.zip",
+      "project": "Code-OSS",
+      "license": "MIT",
+      "version_note": "1.143.0, NOT 1.85.1",
+      "sha256": "d5a1dccdbca61d6a8ea731996ea6b65eb48132e99062e0f350cbd90677dde897",
+      "size_bytes": 77288691,
+      "entries": 25402,
+      "verified_crc": true
+    },
+    {
+      "archive": "termux-app-master.zip",
+      "project": "Termux Android application",
+      "license": "GPL-3.0-only",
+      "version_note": "source archive",
+      "sha256": "a025715aa1f7d0076be5b75c61346890330c4fa69e6d5e2e41b36d0c66d81dc6",
+      "size_bytes": 1224861,
+      "entries": 508,
+      "verified_crc": true
+    },
+    {
+      "archive": "llama.cpp-master.zip",
+      "project": "llama.cpp",
+      "license": "MIT",
+      "version_note": "source archive",
+      "sha256": "8e80b0b4a334e1bdcdc2a3edd5e045db3a35b9729d9c3934fd57b21956d15999",
+      "size_bytes": 39116849,
+      "entries": 3939,
+      "verified_crc": true
+    },
+    {
+      "archive": "vscode-droidscript-code-master.zip",
+      "project": "DroidScript VSCode code",
+      "license": "NOASSERTION",
+      "version_note": "0.3.5",
+      "sha256": "21a11ea795545050224d32f463489a0693e8db623aec5e15795049c3275fc444",
+      "size_bytes": 16115970,
+      "entries": 85,
+      "verified_crc": true
+    },
+    {
+      "archive": "vscode-droidscript-docs-master.zip",
+      "project": "DroidScript VSCode docs",
+      "license": "NOASSERTION",
+      "version_note": "0.1.8",
+      "sha256": "50f3b93dce03f5014e003495eb3c469cd82f19121c7c2c09ce321d9a6e182e8d",
+      "size_bytes": 541118,
+      "entries": 30,
+      "verified_crc": true
+    }
+  ]
+}
