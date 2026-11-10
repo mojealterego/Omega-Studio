@@ -2,91 +2,91 @@ TAP version 13
 # Subtest: sample project is valid and Polish
 ok 1 - sample project is valid and Polish
   ---
-  duration_ms: 1.947897
+  duration_ms: 3.520128
   type: 'test'
   ...
 # Subtest: web HTML escapes user input
 ok 2 - web HTML escapes user input
   ---
-  duration_ms: 0.572455
+  duration_ms: 0.907591
   type: 'test'
   ...
 # Subtest: malicious actions are rejected
 ok 3 - malicious actions are rejected
   ---
-  duration_ms: 0.288226
+  duration_ms: 0.678903
   type: 'test'
   ...
 # Subtest: native Java source uses Android widgets
 ok 4 - native Java source uses Android widgets
   ---
-  duration_ms: 0.504806
+  duration_ms: 0.560428
   type: 'test'
   ...
 # Subtest: exports deterministic valid ZIP archive with both platforms
 ok 5 - exports deterministic valid ZIP archive with both platforms
   ---
-  duration_ms: 4.453198
+  duration_ms: 5.111943
   type: 'test'
   ...
 # Subtest: web only has no native project
 ok 6 - web only has no native project
   ---
-  duration_ms: 0.292101
+  duration_ms: 0.392489
   type: 'test'
   ...
 # Subtest: native only has no web project
 ok 7 - native only has no web project
   ---
-  duration_ms: 0.364448
+  duration_ms: 0.275086
   type: 'test'
   ...
 # Subtest: duplicate page ids rejected
 ok 8 - duplicate page ids rejected
   ---
-  duration_ms: 0.207186
+  duration_ms: 0.129441
   type: 'test'
   ...
 # Subtest: reads GGUF metadata from browser buffer
 ok 9 - reads GGUF metadata from browser buffer
   ---
-  duration_ms: 1.863763
+  duration_ms: 3.668737
   type: 'test'
   ...
 # Subtest: rejects truncated GGUF
 ok 10 - rejects truncated GGUF
   ---
-  duration_ms: 0.35203
+  duration_ms: 0.388254
   type: 'test'
   ...
 # Subtest: rejects malicious Hugging Face paths
 ok 11 - rejects malicious Hugging Face paths
   ---
-  duration_ms: 0.475342
+  duration_ms: 0.658643
   type: 'test'
   ...
 # Subtest: parses a simple workflow outline without executing it
 ok 12 - parses a simple workflow outline without executing it
   ---
-  duration_ms: 0.779902
+  duration_ms: 2.060262
   type: 'test'
   ...
 # Subtest: validates model parameters and rejects NaN
 ok 13 - validates model parameters and rejects NaN
   ---
-  duration_ms: 0.30449
+  duration_ms: 0.462493
   type: 'test'
   ...
 # Subtest: escapes untrusted source in syntax highlighter
 ok 14 - escapes untrusted source in syntax highlighter
   ---
-  duration_ms: 0.342726
+  duration_ms: 0.554499
   type: 'test'
   ...
 # Subtest: provider catalog exposes only well-formed registered endpoints
 ok 15 - provider catalog exposes only well-formed registered endpoints
   ---
-  duration_ms: 0.950344
+  duration_ms: 1.482809
   type: 'test'
   ...
 1..15
@@ -97,4 +97,4 @@ ok 15 - provider catalog exposes only well-formed registered endpoints
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 73.336473
+# duration_ms 173.061968
