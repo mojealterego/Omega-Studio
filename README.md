@@ -1,3 +1,17 @@
+# OMEGA Studio Ultimate v2.0.0 — źródła, integracja upstream i natywny ARM64
+
+> **Stan dostawy:** kod źródłowy + podpisany podgląd Android + prawdziwy natywny moduł ARM64. Podgląd nie jest pełnym produkcyjnym APK Termux/VS Code. Status dowodowy: `docs/V2_RELEASE_EVIDENCE.md`.
+
+- Specyfikacja: `references/MCode.pdf` (11 stron); matryca: `docs/MCODE_11_PAGE_TRACEABILITY_v2.md`.
+- Oficjalne źródła upstream: `third_party/source_archives/*.zip` oraz SHA-256 w `third_party/UPLOADED_SOURCE_ARCHIVES.json`.
+- Silniki badawcze: `backend/omega_actions/ultimate/quantum_ast.py`, `holographic_memory.py`, `self_healing.py`, `trs_transport.py`, `mobile_network.py`, `ci_singularity.py`, `synapse.py`.
+- Android native: `native/omega_runtime.c`, `tools/build_omega_native_arm64.sh`, `android/app/src/main/jniLibs/arm64-v8a/libomega_runtime.so`.
+- APK podglądowy: `dist/OMEGA_Studio_Android_ARM64_ENGINEERING_PREVIEW_v2.0.0.apk`.
+- Testy: `PYTHONPATH=backend:. python -m pytest -q backend/tests builder/tests tests/ultimate tests/test_*.py` oraz `node --test tests/test_ui.mjs tests/test_builder.mjs`.
+- Natywny build: `bash tools/build_omega_native_arm64.sh`.
+- Weryfikacja pełnego runtime: `python -m tools.verify_runtime_bundle` oraz `python tools/verify_android_apk_release.py <apk>`; nie omija brakujących binariów.
+- Oryginalny projekt Termux wymaga dostosowania prefixu pakietu Android; gotowe binaria `com.termux` nie są zgodne z `org.omega.actions` bez odpowiedniego rebuild.
+
 # OMEGA Studio Ultimate — izolowany pakiet źródłowy v1.0.0
 
 **Język interfejsu:** polski. **Wygląd:** Obsidian `#07080A`, 24K Gold `#D4AF37`, platynowa typografia. **Tryb dostawy:** ZIP oraz kopia wybranych zmian źródłowych na `mojealterego/Omega-Studio` (`main`); bez wdrożenia.
@@ -76,15 +90,6 @@ Ostatnie polecenie **prawidłowo kończy się blokadą**: podglądowy APK nie za
 
 Synchronizacja `Omega-Studio/main`: źródła edytora HTTP/WebSocket, CLI, walidatora APK, streamera, pieczęci AST i testy. Pełniejsza wersja źródłowa pozostaje w ZIP.
 
-## Integracja oficjalnych repozytoriów open source
+## Biblioteka źródeł Open Source (przypięte SHA)
 
-Rejestr 14 rzeczywistych repozytoriów, przypięte SHA commitów i sprawdzanie licencji: [docs/OSS_UPSTREAM_INTEGRATION.md](docs/OSS_UPSTREAM_INTEGRATION.md). Pobieranie jest jawne, odtwarzalne i nie uruchamia kodu z repozytorium.
-
-```bash
-python3 -m tools.oss_upstreams audit
-python3 -m tools.oss_upstreams sync --id termux-packages --allow-network
-```
-
-## Biblioteka Open Source w Androidzie i backendzie
-
-Interfejs Android zawiera offline katalog 14 projektów z licencjami i przypiętymi SHA. Backend Ultimate udostępnia autoryzowane `GET /api/ultimate/upstreams` oraz `POST /api/ultimate/upstreams/sync` (świadoma zgoda na sieć). Szczegóły: [docs/UPSTREAM_SOURCE_INTEGRATION.md](docs/UPSTREAM_SOURCE_INTEGRATION.md). Dostępne są również testy rzeczywistego checkoutu Git i walidacji licencji. Pobranie źródeł nie jest równoważne kompilacji binariów ARM64.
+OMEGA Studio ma katalog 14 oficjalnych projektów: Termux, Termux Packages, code-server, Code-OSS **1.85.1**, llama.cpp, Git, CPython, Node.js, Monaco, xterm.js, Actions Runner i Hugging Face Hub. Lokalny menedżer pobiera je na żądanie, weryfikuje commit, licencję i integralność checkoutu. Zobacz [dokumentację upstream](docs/UPSTREAM_SOURCE_INTEGRATION.md). Pobranie kodu źródłowego nie oznacza wbudowania gotowych binariów ARM64 w APK.
