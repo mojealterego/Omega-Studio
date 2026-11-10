@@ -31,4 +31,14 @@ for CMD in bash python git llama-cli node code-server; do
   fi
   echo "DEVICE PASS: $CMD"
 done
+# Execute real code, not only version switches.
+"${ADB[@]}" shell run-as "$PKG" "$PREFIX/bin/bash" -c 'printf OMEGA_BASH_OK' | grep -q 'OMEGA_BASH_OK' || {
+  echo 'BLOCKED: Bash failed to execute a command' >&2;exit 4;
+}
+"${ADB[@]}" shell run-as "$PKG" "$PREFIX/bin/python" -c 'import json,sqlite3,ssl; print("OMEGA_PYTHON_OK")' | grep -q 'OMEGA_PYTHON_OK' || {
+  echo 'BLOCKED: Python standard library is incomplete' >&2;exit 4;
+}
+"${ADB[@]}" shell run-as "$PKG" "$PREFIX/bin/node" -e 'console.log("OMEGA_NODE_OK")' | grep -q 'OMEGA_NODE_OK' || {
+  echo 'BLOCKED: Node.js execution failed' >&2;exit 4;
+}
 printf 'DEVICE_SMOKE_PASS: six commands executed on physical arm64-v8a device\n'
