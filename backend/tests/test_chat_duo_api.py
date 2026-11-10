@@ -49,7 +49,7 @@ class DuoAPITests(unittest.TestCase):
                 return FakeResponse("def add(a, b): return a + b")
             return FakeResponse("APPROVE: tests recommended")
         with patch.dict(os.environ, env, clear=True), patch(
-                "urllib.request.urlopen", side_effect=answer):
+                "urllib.request.OpenerDirector.open", side_effect=answer):
             response = self.client.post(self.endpoint, json={"instruction": "Implement addition"})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["approved"])
@@ -65,7 +65,7 @@ class DuoAPITests(unittest.TestCase):
             "OMEGA_DUO_REVIEWER_MODEL": "reviewer",
         }
         with patch.dict(os.environ, env, clear=True), patch(
-                "urllib.request.urlopen", side_effect=[
+                "urllib.request.OpenerDirector.open", side_effect=[
                     FakeResponse("unsafe code"), FakeResponse("REJECT: unsafe")]):
             response = self.client.post(self.endpoint, json={"instruction": "Review code"})
         self.assertEqual(response.status_code, 200)
