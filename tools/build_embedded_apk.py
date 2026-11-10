@@ -202,11 +202,17 @@ def build(output:Path)->dict:
         apk.writestr('classes.dex',dex())
         for name in ('index.html','app.css','app.js','builder.js','builder-ui.js'):
             apk.write(asset_root/name,'assets/'+name)
+        native = ROOT/'android/app/src/main/jniLibs/arm64-v8a/libomega_runtime.so'
+        if native.exists():
+            binary = native.read_bytes()
+            if binary[:4] != b'\x7fELF' or binary[4] != 2 or struct.unpack_from('<H',binary,18)[0] != 183:
+                raise ValueError('Invalid ARM64 native library')
+            apk.writestr('lib/arm64-v8a/libomega_runtime.so',binary,compress_type=zipfile.ZIP_STORED)
     output.write_bytes(_sign_v2(data.getvalue()))
     verify_apk(output)
     return {'path':str(output),'sha256':hashlib.sha256(output.read_bytes()).hexdigest(),
             'size_bytes':output.stat().st_size,'signed_v2':True,'classes':2,
-            'runtime':'Offline editor + NoCode AppBuilder + Android system shell; no Termux/Python/Git bootstrap'}
+            'runtime':'Offline editor + NoCode AppBuilder + ARM64 native GGUF probe; no Termux/Python/Git bootstrap'}
 
 if __name__=='__main__':
     import argparse
