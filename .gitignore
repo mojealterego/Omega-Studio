@@ -1,0 +1,15 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+*.apk
+*.zip
+*.gguf
+.env
+.venv/
+.gradle/
+**/build/
+**/dist/
+local.properties
+*.keystore
+*.jks
