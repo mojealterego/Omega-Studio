@@ -21,6 +21,8 @@ class ProviderConfig:
     max_output_tokens: int = 4096
 
     def __post_init__(self) -> None:
+        if not isinstance(self.endpoint, str) or not self.endpoint or self.endpoint != self.endpoint.strip():
+            raise ProviderError('Invalid endpoint URL')
         try:
             parsed = urlsplit(self.endpoint)
             port = parsed.port
@@ -30,9 +32,12 @@ class ProviderConfig:
             raise ProviderError("Endpoint must use HTTP or HTTPS")
         if parsed.username or parsed.password or parsed.fragment:
             raise ProviderError("Credentials and fragments are not allowed in endpoint URLs")
-        if not self.model or len(self.model) > 256:
+        if not isinstance(self.model, str) or not self.model.strip() or len(self.model) > 256:
             raise ProviderError("Invalid model")
-        if not 1 <= self.timeout_seconds <= 300 or not 1 <= self.max_output_tokens <= 32768:
+        if (not isinstance(self.timeout_seconds, (int, float)) or
+                not isinstance(self.max_output_tokens, int) or
+                not 1 <= self.timeout_seconds <= 300 or
+                not 1 <= self.max_output_tokens <= 32768):
             raise ProviderError("Invalid provider limits")
         if parsed.scheme == "http" and parsed.hostname not in ("127.0.0.1", "localhost", "::1"):
             raise ProviderError("Unencrypted HTTP is only permitted for loopback providers")
@@ -78,7 +83,7 @@ class ChatCompletionProvider:
         try:
             parsed = json.loads(raw)
             message = parsed["choices"][0]["message"]["content"]
-        except (ValueError, TypeError, KeyError, IndexError) as exc:
+        except (ValueError, TypeError, KeyError, IndexError, AttributeError, UnicodeError) as exc:
             raise ProviderError("Invalid provider response") from exc
         if not isinstance(message, str) or not message.strip() or len(message) > 262144:
             raise ProviderError("Empty or oversized model response")
