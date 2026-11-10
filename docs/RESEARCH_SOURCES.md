@@ -10,3 +10,7 @@
 - https://platform.openai.com/docs — API OpenAI i rozdzielenie uprawnień od aplikacji ChatGPT.
 
 Nie uruchamiano płatnych usług i nie wprowadzano zmian do repozytoriów użytkownika.
+
+## Zestaw źródeł z weryfikowanymi SHA
+
+Źródła, licencje, identyfikatory commitów, proces pobierania i zasady bezpiecznej redystrybucji opisuje [OSS_UPSTREAM_INTEGRATION.md](OSS_UPSTREAM_INTEGRATION.md). Źródłem prawdy dla wersji jest `config/upstreams.lock.json`.
