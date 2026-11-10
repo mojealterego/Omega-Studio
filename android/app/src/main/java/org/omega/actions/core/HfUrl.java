@@ -23,8 +23,8 @@ public final class HfUrl {
         return b.append("?download=true").toString();
     }
     public static boolean trusted(String url){
-        try {java.net.URI u=new java.net.URI(url);return "https".equals(u.getScheme())&&HOSTS.contains(u.getHost())&&
-                u.getUserInfo()==null&&(u.getPort()==-1||u.getPort()==443);}
+        try {java.net.URI u=new java.net.URI(url);return "https".equals(u.getScheme())&&HOSTS.contains(u.getHost()==null?"":u.getHost().toLowerCase(java.util.Locale.ROOT))&&
+                u.getUserInfo()==null&&u.getRawFragment()==null&&(u.getPort()==-1||u.getPort()==443);}
         catch(Exception e){return false;}
     }
 }
