@@ -1,41 +1,52 @@
-# Zależności, licencje i pochodzenie kodu
+# Dependencies & Licenses
 
-## Kod pakietu
+## Zależności runtime Python
 
-- Kod Python `backend/` — Apache-2.0 (patrz `backend/LICENSE`).
-- Kod projektu głównego i narzędzia — Apache-2.0 (`LICENSE`).
-- Java/JS/CSS/HTML w `android/` — źródła projektu; nie kopiowano drzewa
-  `termux/termux-app` ani `mojealterego/vscode` do archiwum.
-- APK offline preview — zbudowany przez `tools/build_embedded_apk.py`, podpisany
-  lokalnym kluczem testowym, nie kluczem dystrybucyjnym użytkownika.
+| Pakiet | Zakres / status | Licencja orientacyjna |
+|---|---|---|
+| Python | ≥3.11 | PSF |
+| FastAPI | ≥0.110,<1 | MIT |
+| Uvicorn | ≥0.27,<1 | BSD-3-Clause |
+| PyYAML | ≥6,<7 | MIT |
+| cryptography | ≥42,<50 | Apache-2.0 / BSD |
+| argon2-cffi | ≥23,<26 | MIT |
+| psutil | ≥5.9,<8 | BSD-3-Clause |
+| httpx | ≥0.27,<1 | BSD-3-Clause |
+| rarfile | opcjonalne ≥4.2,<5 | ISC (sprawdzić przy redystrybucji) |
 
-## Python (`backend/pyproject.toml`)
+`backend/requirements.txt` jest podstawowym manifestem. W zależności od instalacji występują zależności pośrednie Pydantic, Starlette, anyio, httpcore, certifi, h11, cffi, argon2-cffi-bindings, PyNaCl lub inne; dokładne wersje należy odczytać z lockfile środowiska build. Paczka nie vendoryzuje binariów tych bibliotek.
 
-`Python >=3.11`, `setuptools>=68`, `wheel`, `PyYAML>=6,<7`, `fastapi>=0.110,<1`,
-`uvicorn>=0.27,<1`, `cryptography>=42,<50`, `argon2-cffi>=23,<26`,
-`psutil>=5.9,<8`, `httpx>=0.27,<1`.
+## Narzędzia opcjonalne
 
-Testy lokalne korzystały także z zainstalowanego `pytest` i `playwright`/Chromium.
-Dokładny transitive dependency lockfile nie jest dostarczony; zakresy zależności
-są jawne w `pyproject.toml`, ale nie stanowią reprodukowalnego SBOM.
+- Node.js — testy JS, potencjalny code-server; licencja Node.js/MIT + komponenty zależne.
+- FFmpeg — generacja MP4; LGPL/GPL zależnie od konfiguracji build; binarium **nie jest dystrybuowane** w ZIP.
+- `rar` — licencjonowany koder RAR, nie dołączony.
+- `unrar`/`unar` — zewnętrzny dekoder RAR; licencja zależna od programu, nie dołączony.
+- Android SDK/AGP/Gradle/NDK — wymagane do budowania natywnego APK, nie dołączone.
+- Termux/termux-packages — źródła upstream, pakiety mają odrębne licencje, nie dołączono gotowych binariów.
+- code-server (MIT) / Code-OSS (MIT, odróżnić od dystrybucji Microsoft Visual Studio Code) — menedżer jest w kodzie, binaria nie są dołączone.
+- llama.cpp (MIT) — adapter/manifest i kontrola binariów; brak binarium ARM64.
 
-## Android
+## Materiały własne i źródła
 
-Natywne źródła Java wymagają Gradle/Android Gradle Plugin i Android SDK 35;
-`compileSdk=35`, `minSdk=26`, `targetSdk=28`. Podgląd APK budowany jest bez Android SDK.
+`references/MCode.pdf` oraz tekst promptu zostały dostarczone przez użytkownika. Źródła OMEGA Studio pochodzą z własnego repozytorium użytkownika i lokalnych plików wcześniejszego projektu. Kod bazowy zawiera licencję Apache-2.0 w `LICENSE` i `backend/LICENSE`.
 
-## Repozytoria referencyjne
+Indeksowane repozytoria z GitHub/GitLab/HF **nie są automatycznie dołączane** do ZIP. Metadane licencji SPDX są informacyjne; przed kopiowaniem kodu obowiązuje licencja danego repozytorium.
 
-- https://github.com/termux/termux-app — Termux Android app (GPLv3 dla części komponentów,
-  osobne licencje zależności); **nie dołączono bootstrap ani kopii kodu**.
-- https://github.com/mojealterego/vscode — fork Code - OSS (MIT); **tylko punkt odniesienia UI**.
-- https://github.com/ggerganov/llama.cpp — silnik GGUF (MIT); **nie dołączono binariów**.
-- https://github.com/mojealterego/Digital-Life — **tylko odczyt**; nie kopiowano repo.
+## Oficjalne źródła API
 
-Warunki usług GitHub, Hugging Face i OpenAI mają zastosowanie do realnych wywołań API.
-Nie przeprowadzono zewnętrznego audytu licencyjnego ani skanowania CVE wszystkich
-przyszłych wersji zależności.
+- GitHub: https://docs.github.com/en/rest/repos/repos#list-organization-repositories
+- GitHub pagination: https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api
+- GitLab: https://docs.gitlab.com/api/projects/
+- Hugging Face: https://huggingface.co/docs/hub/api
+- Hugging Face download: https://huggingface.co/docs/huggingface_hub/en/guides/download
+- Termux: https://github.com/termux/termux-app
+- code-server: https://github.com/coder/code-server
+- llama.cpp: https://github.com/ggml-org/llama.cpp
+- glTF 2.0: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html
 
-## v1.1
+Brak pełnego SBOM dla niepobranego natywnego runtime ARM64; żadne licencje nie są automatycznie uznawane za zgodne tylko dlatego, że projekt jest publiczny.
 
-Dodano `providers.py` (wykorzystuje istniejący `httpx`), `ProviderCatalog.java` i `RuntimeAssetsInstaller.java` (Java SDK/Android SDK), katalog JSON oraz kod interfejsu bez nowych bibliotek npm. Licencje zewnętrznych Termux/Python/Git/llama.cpp wymagają dołączenia odpowiednich tekstów licencyjnych w finalnej dystrybucji binarnej. Pakiet v1.1 nie dystrybuuje tych binariów.
+## Zewnętrzne źródła OSS — przypięte commity
+
+Źródła, licencje, identyfikatory commitów, proces pobierania i zasady bezpiecznej redystrybucji opisuje [OSS_UPSTREAM_INTEGRATION.md](docs/OSS_UPSTREAM_INTEGRATION.md). Źródłem prawdy dla wersji jest `config/upstreams.lock.json`.
