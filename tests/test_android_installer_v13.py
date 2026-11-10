@@ -19,3 +19,9 @@ def test_health_probe_fails_when_any_command_fails():
     src=(ROOT/'android/app/src/main/java/org/omega/actions/RuntimeHealth.java').read_text()
     assert 'void assertHealthy(' in src
     assert 'PASS:' in src
+
+
+def test_installation_callback_allows_large_offline_bootstrap():
+    src=(ROOT/'android/app/src/main/assets/app.js').read_text()
+    assert "method==='installBootstrap'" in src
+    assert '3600000' in src
