@@ -81,7 +81,7 @@ class ProviderTests(unittest.TestCase):
                     ProviderConfig(endpoint, "model")
 
     def test_api_key_must_be_safe_header_text(self):
-        for api_key in (None, 17, "bad\\r\\nInjected: yes", "bad\\nInjected: yes"):
+        for api_key in (None, 17, "bad" + chr(13) + chr(10) + "Injected: yes", "bad" + chr(10) + "Injected: yes"):
             with self.subTest(api_key=api_key):
                 with self.assertRaises(ProviderError):
                     ProviderConfig("https://api.example.org/v1/chat/completions",
