@@ -2,3 +2,4 @@ Note: android/app/src/main/java/org/omega/actions/CodeServerManager.java uses or
 Note: Recompile with -Xlint:deprecation for details.
 RUNTIME_ENVIRONMENT_PASS
 CODE_SERVER_SUPERVISOR_PASS
+RUNTIME_HEALTH_FAIL_CLOSED_PASS
