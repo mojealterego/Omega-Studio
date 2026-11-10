@@ -2,6 +2,7 @@
 from __future__ import annotations
 import html
 import io
+import os
 from pathlib import Path
 import shutil
 from fastapi import APIRouter, HTTPException
@@ -17,7 +18,13 @@ from .self_healing_ast import repair_python_source
 from .network_chaos import simulate_mobile_network
 from .workspace_registry import WorkspaceRegistry, WorkspaceError
 from .mcp_registry import MCPRegistry, MCPServer, MCPRegistryError
+from .llm_provider import ChatCompletionProvider, ProviderConfig, ProviderError
+from .chat_duo import DuoSession, DuoError
 from dataclasses import asdict
+
+
+class DuoChatRequest(BaseModel):
+    instruction: str = Field(min_length=1, max_length=262144)
 
 
 class AssetRequest(BaseModel):
@@ -144,6 +151,27 @@ def create_ultimate_router(home: Path) -> APIRouter:
             return run_simulation(seed=seed, jobs=jobs)
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
+
+    @router.post('/chat/duo')
+    def chat_duo(body: DuoChatRequest):
+        author_endpoint = os.environ.get('OMEGA_DUO_AUTHOR_ENDPOINT')
+        reviewer_endpoint = os.environ.get('OMEGA_DUO_REVIEWER_ENDPOINT')
+        author_model = os.environ.get('OMEGA_DUO_AUTHOR_MODEL')
+        reviewer_model = os.environ.get('OMEGA_DUO_REVIEWER_MODEL')
+        if not all((author_endpoint, reviewer_endpoint, author_model, reviewer_model)):
+            raise HTTPException(503, 'Two independent model providers must be configured')
+        try:
+            author = ChatCompletionProvider(ProviderConfig(
+                endpoint=author_endpoint, model=author_model,
+                api_key=os.environ.get('OMEGA_DUO_AUTHOR_KEY', '')))
+            reviewer = ChatCompletionProvider(ProviderConfig(
+                endpoint=reviewer_endpoint, model=reviewer_model,
+                api_key=os.environ.get('OMEGA_DUO_REVIEWER_KEY', '')))
+            result = DuoSession(author, reviewer).run(body.instruction)
+            return {'proposal': result.proposal, 'review': result.review,
+                    'approved': result.approved, 'executed': result.executed}
+        except (ProviderError, DuoError) as exc:
+            raise HTTPException(502, str(exc)) from exc
 
     @router.post('/analyze')
     def analyze(body: SwarmRequest):
