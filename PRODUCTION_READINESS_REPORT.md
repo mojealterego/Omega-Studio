@@ -1,3 +1,14 @@
+# OMEGA Studio v2 — stan wydania (2026-11-10)
+
+**Nie ma dowodu spełnienia 100% wymagań `MCode.pdf` ani uruchomienia pełnego Android ARM64 APK.** Kompilacja natywnej biblioteki i testy hostowe nie stanowią testów urządzenia. Szczegóły w `docs/V2_RELEASE_EVIDENCE.md`.
+
+- Zweryfikowano źródła pięciu archiwów użytkownika (CRC, ścieżki, SHA-256). Code-OSS w dostarczonym ZIP ma wersję 1.143.0, nie 1.85.1.
+- Zbudowano `libomega_runtime.so` dla AArch64 z rzeczywistymi funkcjami GGUF/UTF-8/checksum i JNI.
+- Wykonano hostowe testy Python/JS/C, kompilację Java ze stubami i test Chromium.
+- Podglądowy APK zawiera ELF64, DEX, binarny manifest, zasoby i podpis APK v2; nie zawiera 6 wymaganych binariów runtime.
+- Nie wykonywano audytów zewnętrznych, testów na fizycznym Androidzie ani kompilacji pełnego Code-OSS i Termux.
+- Kopie źródeł i podglądowego APK synchronizowane są z `mojealterego/Omega-Studio/main` wyłącznie z `[skip ci] [skip actions]`; `Digital-Life` bez zmian.
+
 # OMEGA Studio Ultimate — Production Readiness Report
 
 **Wydanie:** source package `v1.0.0`, 10.11.2026. **Typ:** izolowany pakiet ZIP z kodem źródłowym, testami, dokumentacją, benchmarkami i podglądowym APK z wcześniejszego etapu.
@@ -16,7 +27,7 @@
 | Local CI/CD | PASS, dwa realne joby w odizolowanym workspace |
 | Serwer 8080 (API/HTTP/WebSocket + IDE) | Host API, IDE i WS PASS; realny HTTP test na porcie 18080 z powodu zajętego 8080 |
 | Premium UI desktop/mobile | Chromium PASS; fetch kontrolowany mockiem ze względu na sandbox browsera |
-| Testy Python | 216 PASS + 4 podtesty, 0 FAIL (10.11.2026) |
+| Testy Python | 197 PASS + 4 podtesty, 0 FAIL |
 | Testy JavaScript | 15 PASS, 0 FAIL |
 | Symulacja architektury | 10/10 niezmienników PASS, model-only |
 | Komplet binariów Termux/Python/Git/llama.cpp/Node/code-server dla Android | **NIEOBECNY W PAKIECIE** |
@@ -46,6 +57,6 @@ Nie przypisuje się nieistniejącym binariom, fizycznym testom, formalnym dowodo
 
 Manifest `MANIFEST_SHA256.txt` obejmuje wszystkie pliki ZIP poza samym manifestem. `tools/verify_package.py` odtwarza kontrolę CRC, liczby plików i zgodności skrótów; osobny raport `.validation.json` zapisano obok ZIP. Nie przeprowadzono instalacji ani wdrożenia. Zmiany kodu i dokumentacji zostały zapisane do `Omega-Studio` na polecenie użytkownika.
 
-## Stan integracji źródeł OSS
+## Zależności Open Source
 
-Zweryfikowano w oficjalnych repozytoriach identyfikatory commitów i pliki licencji 11 projektów. Implementacja pobierania przypiętych źródeł i walidacji ich integralności została przetestowana lokalnie na rzeczywistym repozytorium Git. Nie oznacza to dołączenia ARM64 binariów do APK ani testu urządzenia.
+Wersja rozwojowa zawiera menedżer przypiętych źródeł z 14 oficjalnych projektów i testy jego działania. Źródła nie są tożsame z działającymi binariami ARM64 w APK. Bramka produkcyjna nadal wymaga prawdziwego bootstrap, SDK i wykonania na urządzeniu.
