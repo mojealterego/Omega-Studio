@@ -16,6 +16,8 @@ from .quantum_topology import QuantumASTResonator
 from .self_healing_ast import repair_python_source
 from .network_chaos import simulate_mobile_network
 from .workspace_registry import WorkspaceRegistry, WorkspaceError
+from .mcp_registry import MCPRegistry, MCPServer, MCPRegistryError
+from dataclasses import asdict
 
 
 class AssetRequest(BaseModel):
@@ -48,6 +50,13 @@ class WorkspaceCreateRequest(BaseModel):
     name: str = Field(min_length=1, max_length=64, pattern=r'^[A-Za-z0-9][A-Za-z0-9_-]*$')
 
 
+class MCPServerRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=64)
+    transport: str
+    command: list[str] = Field(default_factory=list, max_length=32)
+    url: str = Field(default='', max_length=4096)
+
+
 class NoCodeRequest(BaseModel):
     description: str = Field(min_length=1, max_length=4000)
 
@@ -78,6 +87,37 @@ def create_ultimate_router(home: Path) -> APIRouter:
             return {'name': name, 'path': str(path.relative_to(root))}
         except WorkspaceError as exc:
             raise HTTPException(404, str(exc)) from exc
+
+    mcp_registry = MCPRegistry(root)
+
+    @router.get('/mcp/servers')
+    def list_mcp_servers():
+        try:
+            return {'items': [asdict(server) for server in mcp_registry.list()]}
+        except MCPRegistryError as exc:
+            raise HTTPException(422, str(exc)) from exc
+
+    @router.put('/mcp/servers/{name}')
+    def put_mcp_server(name: str, body: MCPServerRequest):
+        if name != body.name:
+            raise HTTPException(422, 'MCP server identity mismatch')
+        try:
+            server = MCPServer(name=body.name, transport=body.transport,
+                               command=tuple(body.command), url=body.url)
+            mcp_registry.put(server)
+            return {'server': asdict(server), 'configured': True, 'executed': False}
+        except MCPRegistryError as exc:
+            raise HTTPException(422, str(exc)) from exc
+
+    @router.delete('/mcp/servers/{name}')
+    def delete_mcp_server(name: str):
+        try:
+            removed = mcp_registry.delete(name)
+            if not removed:
+                raise HTTPException(404, 'MCP server not found')
+            return {'removed': True}
+        except MCPRegistryError as exc:
+            raise HTTPException(422, str(exc)) from exc
 
     @router.post('/hyper/ast')
     def hyper_ast(body: ASTRequest):
