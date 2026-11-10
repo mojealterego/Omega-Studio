@@ -59,7 +59,13 @@ class ChatCompletionProvider:
         class NoRedirect(urllib.request.HTTPRedirectHandler):
             def redirect_request(self, req, fp, code, msg, headers, newurl):
                 return None
-        opener = urllib.request.build_opener(NoRedirect)
+        # Loopback model traffic must not inherit HTTP(S)_PROXY from the host.
+        # Remote HTTPS providers retain the system's normal proxy configuration.
+        host = urlsplit(self.config.endpoint).hostname
+        handlers = [NoRedirect]
+        if host in ("127.0.0.1", "localhost", "::1"):
+            handlers.insert(0, urllib.request.ProxyHandler({}))
+        opener = urllib.request.build_opener(*handlers)
         try:
             with opener.open(request, timeout=self.config.timeout_seconds) as response:
                 if response.status != 200:
