@@ -20,8 +20,9 @@
     "sources": 12
   },
   "java_host_process_tests": {
+    "log": "validation/V13_JAVA_HOST.log",
     "not_android_runtime": true,
-    "passed": 2,
+    "passed": 3,
     "result": "PASS"
   },
   "javascript_tests": {
@@ -35,7 +36,7 @@
   "python_tests": {
     "exit_code": 0,
     "log": "validation/V13_PYTEST.log",
-    "passed": 144,
+    "passed": 151,
     "subtests": 4,
     "warnings": 1
   },
@@ -45,5 +46,10 @@
     "status": "BLOCKED"
   },
   "repository": "https://github.com/mojealterego/Omega-Studio",
+  "signing_gate": {
+    "exit_code": 2,
+    "reason": "Native bootstrap absent; no release APK signed",
+    "status": "BLOCKED"
+  },
   "version": "1.3.0-source"
 }
