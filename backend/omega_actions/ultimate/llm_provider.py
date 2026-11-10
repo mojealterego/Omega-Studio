@@ -5,7 +5,6 @@ from dataclasses import dataclass
 import ipaddress
 import json
 import os
-import socket
 import urllib.error
 import urllib.request
 from urllib.parse import urlsplit
@@ -22,10 +21,14 @@ class ProviderConfig:
     max_output_tokens: int = 4096
 
     def __post_init__(self) -> None:
-        parsed = urlsplit(self.endpoint)
+        try:
+            parsed = urlsplit(self.endpoint)
+            port = parsed.port
+        except (ValueError, TypeError) as exc:
+            raise ProviderError('Invalid endpoint URL') from exc
         if parsed.scheme not in ("http", "https") or not parsed.hostname:
             raise ProviderError("Endpoint must use HTTP or HTTPS")
-        if parsed.username or parsed.password or parsed.fragment:
+        if parsed.username or parsed.password or parsed.fragment or port is None and parsed.scheme == 'http' and parsed.hostname not in ('localhost', '127.0.0.1', '::1'):
             raise ProviderError("Credentials and fragments are not allowed in endpoint URLs")
         if not self.model or len(self.model) > 256:
             raise ProviderError("Invalid model")
@@ -53,8 +56,12 @@ class ChatCompletionProvider:
         if self.config.api_key:
             headers["Authorization"] = "Bearer " + self.config.api_key
         request = urllib.request.Request(self.config.endpoint, data=data, headers=headers, method="POST")
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, headers, newurl):
+                return None
+        opener = urllib.request.build_opener(NoRedirect)
         try:
-            with urllib.request.urlopen(request, timeout=self.config.timeout_seconds) as response:
+            with opener.open(request, timeout=self.config.timeout_seconds) as response:
                 if response.status != 200:
                     raise ProviderError("Provider returned non-200 response")
                 raw = response.read(1024 * 1024 + 1)
