@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "sources": [
+    {"id":"termux-app","repository":"termux/termux-app","commit":"8629e632fcb95da272221be327db653fb24befe9","license":"GPL-3.0-only","license_file":"LICENSE.md","purpose":"Android terminal emulator and Termux application components"},
+    {"id":"termux-packages","repository":"termux/termux-packages","commit":"733ca160a2150a22a81d2463d0f97c6332d6a530","license":"per-package","license_file":"LICENSE.md","purpose":"Custom-prefix aarch64 package recipes and bootstrap builder"},
+    {"id":"code-server","repository":"coder/code-server","commit":"fcd14dceb7f60195d6925ec5d0716e08a6e04b22","license":"MIT","license_file":"LICENSE","purpose":"Browser-accessible VS Code-compatible editor server"},
+    {"id":"vscode-1-85-1","repository":"microsoft/vscode","commit":"0ee08df0cf4527e40edc9aa28f4b5bd38bbff2b2","license":"MIT","license_file":"LICENSE.txt","purpose":"Exact Code-OSS 1.85.1 reference for editor parity analysis"},
+    {"id":"llama-cpp","repository":"ggml-org/llama.cpp","commit":"17701e48d7fa3b7dac949cb9e5e6d241a382333c","license":"MIT","license_file":"LICENSE","purpose":"GGUF local inference engine and Android CMake toolchain"},
+    {"id":"git","repository":"git/git","commit":"fbd2d1e765da4d2931cadc4c62d3ca5d5b590e7e","license":"GPL-2.0-only","license_file":"COPYING","purpose":"Git source and command-line version control"},
+    {"id":"cpython","repository":"python/cpython","commit":"4575fb91eab84ec8ee02b7cad7c38b309006a010","license":"PSF-2.0","license_file":"LICENSE","purpose":"CPython interpreter source"},
+    {"id":"github-cli","repository":"cli/cli","commit":"18138654f3598ebe031ad7b661c903188f0f1dc9","license":"MIT","license_file":"LICENSE","purpose":"Open-source GitHub command-line integration"},
+    {"id":"monaco-editor","repository":"microsoft/monaco-editor","commit":"5359a3330383137dfdf8897ba1d93d943fec4027","license":"MIT","license_file":"LICENSE.txt","purpose":"Web code editor engine and language services"},
+    {"id":"tree-sitter","repository":"tree-sitter/tree-sitter","commit":"ad0aeb42d34c9f922990cc1159b41dea37d9c0e7","license":"MIT","license_file":"LICENSE","purpose":"Incremental parser for structural code analysis"},
+    {"id":"huggingface-hub","repository":"huggingface/huggingface_hub","commit":"bd92c8cab8c7b52bb3c1f1d6502c303805336bae","license":"Apache-2.0","license_file":"LICENSE","purpose":"Hugging Face model registry client"}
+  ]
+}
