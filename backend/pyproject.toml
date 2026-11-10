@@ -13,7 +13,7 @@ dependencies = ["PyYAML>=6.0,<7", "fastapi>=0.110,<1", "uvicorn>=0.27,<1", "cryp
 omega-actions = "omega_actions.cli:main"
 omega-models = "omega_actions.model_cli:main"
 [tool.setuptools.package-data]
-omega_actions = ["static/*", "ultimate/*.html"]
+omega_actions = ["static/*", "ultimate/*.html", "ultimate/*.json"]
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["omega_actions*"]
