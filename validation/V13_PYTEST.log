@@ -1,10 +1,10 @@
-........................................................................ [ 50%]
-.................................................................... [ 97%]
-....                                                                     [100%]
+........................................................................ [ 47%]
+.................................................................... [ 92%]
+...........                                                              [100%]
 =============================== warnings summary ===============================
 test_assemble_runtime_v13.py::test_import_rejects_duplicate_entries
   /usr/lib/python3.13/zipfile/__init__.py:1642: UserWarning: Duplicate name: 'bin/bash'
     return self._open_to_write(zinfo, force_zip64=force_zip64)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-144 passed, 1 warning, 4 subtests passed in 6.07s
+151 passed, 1 warning, 4 subtests passed in 6.20s
