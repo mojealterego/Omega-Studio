@@ -16,7 +16,7 @@
 | Local CI/CD | PASS, dwa realne joby w odizolowanym workspace |
 | Serwer 8080 (API/HTTP/WebSocket + IDE) | Host API, IDE i WS PASS; realny HTTP test na porcie 18080 z powodu zajętego 8080 |
 | Premium UI desktop/mobile | Chromium PASS; fetch kontrolowany mockiem ze względu na sandbox browsera |
-| Testy Python | 197 PASS + 4 podtesty, 0 FAIL |
+| Testy Python | 216 PASS + 4 podtesty, 0 FAIL (10.11.2026) |
 | Testy JavaScript | 15 PASS, 0 FAIL |
 | Symulacja architektury | 10/10 niezmienników PASS, model-only |
 | Komplet binariów Termux/Python/Git/llama.cpp/Node/code-server dla Android | **NIEOBECNY W PAKIECIE** |
