@@ -29,9 +29,12 @@
     "embedded_native_gguf_probe": true,
     "termux_python_git_llama_code_server_bundled": false,
     "device_verified": false,
-    "signed_release_apk": false
+    "signed_release_apk": false,
+    "native_library_sha256": "0ea8e0fb0ec28ed91c222869ad6e35cdad80d1130dd3027cde8a5e46a9a96831",
+    "engineering_preview_apk_sha256": "14e2e49ca8a7b75510c76101e28228cc694a92ce8d2c17cff1a6ecfa17a376d0"
   },
   "host_research_modules": "LOCAL_TESTED",
   "automation_hourly": "DISABLED_BY_USER_REQUEST",
-  "github_backup": "PENDING_SYNC"
+  "github_backup": "SOURCE_AND_ENGINEERING_APK_VERIFIED",
+  "github_backup_commit": "ff2ee6e7df03c15d3a95cec2317beaeaa739936f"
 }
