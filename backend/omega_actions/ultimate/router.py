@@ -11,6 +11,8 @@ from .assets import make_svg, make_png, make_wav, make_gltf_animation, make_vide
 from .crawler import GitHubOrgCrawler, RepositoryIndex, CrawlerError
 from .simulation import run_simulation
 from .code_swarm import analyze_source
+from .quantum_ast import ASTResonator
+from .mobile_network import NetworkScenario, simulate_mobile_link
 from .upstream_sources import default_catalog, UpstreamSourceManager, CatalogError, SourceSyncError
 
 
@@ -22,11 +24,24 @@ class AssetRequest(BaseModel):
 class SwarmRequest(BaseModel):
     source: str = Field(min_length=1, max_length=512 * 1024)
     mode: str = Field(default='leak', pattern='^(leak|duo)$')
+    suggest_repair: bool = False
 
 
 class UpstreamSyncRequest(BaseModel):
     name: str = Field(min_length=1, max_length=64)
     confirm_network: bool = False
+
+
+class ASTResearchRequest(BaseModel):
+    source: str = Field(min_length=1, max_length=2 * 1024 * 1024)
+
+
+class NetworkResearchRequest(BaseModel):
+    seed: int = Field(ge=0, lt=2**32)
+    packets: int = Field(ge=1, le=1_000_000)
+    loss_rate: float = Field(default=0.0, ge=0.0, le=1.0)
+    jitter_ms: int = Field(default=0, ge=0, le=60_000)
+    handoff_every: int = Field(default=0, ge=0, le=1_000_000)
 
 
 class NoCodeRequest(BaseModel):
@@ -48,9 +63,25 @@ def create_ultimate_router(home: Path) -> APIRouter:
     @router.post('/analyze')
     def analyze(body: SwarmRequest):
         try:
-            return analyze_source(body.source, mode=body.mode)
+            return analyze_source(body.source, mode=body.mode, suggest_repair=body.suggest_repair)
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
+
+    @router.post('/research/ast')
+    def research_ast(body: ASTResearchRequest):
+        try:
+            resonator = ASTResonator(64)
+            embedding = resonator.embed(body.source)
+            return {'scope':'CLASSICAL_CPU_HEURISTIC', 'dimensions':64,
+                    'norm_squared':sum(abs(value)**2 for value in embedding),
+                    'projection':resonator.project(embedding,embedding)}
+        except (ValueError, SyntaxError) as exc:
+            raise HTTPException(422, 'Invalid Python source or embedding configuration') from exc
+
+    @router.post('/research/network')
+    def research_network(body: NetworkResearchRequest):
+        scenario = NetworkScenario(**body.model_dump())
+        return simulate_mobile_link(scenario)
 
     @router.get('/status')
     def status():
