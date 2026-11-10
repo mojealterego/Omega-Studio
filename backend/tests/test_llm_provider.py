@@ -20,7 +20,7 @@ class ProviderTests(unittest.TestCase):
     def test_local_provider_returns_model_text(self):
         provider = ChatCompletionProvider(ProviderConfig(
             "http://127.0.0.1:8081/v1/chat/completions", "local-model"))
-        with patch("urllib.request.urlopen", return_value=FakeResponse(
+        with patch("urllib.request.OpenerDirector.open", return_value=FakeResponse(
                 {"choices": [{"message": {"content": "APPROVE: valid"}}]})) as mocked:
             self.assertEqual(provider("Review this patch"), "APPROVE: valid")
         request = mocked.call_args.args[0]
@@ -35,7 +35,7 @@ class ProviderTests(unittest.TestCase):
     def test_missing_response_rejected(self):
         provider = ChatCompletionProvider(ProviderConfig(
             "http://localhost:8081/v1/chat/completions", "model"))
-        with patch("urllib.request.urlopen", return_value=FakeResponse({"choices": []})):
+        with patch("urllib.request.OpenerDirector.open", return_value=FakeResponse({"choices": []})):
             with self.assertRaises(ProviderError):
                 provider("prompt")
 
@@ -48,6 +48,6 @@ class ProviderTests(unittest.TestCase):
     def test_network_failure_is_normalized(self):
         provider = ChatCompletionProvider(ProviderConfig(
             "https://api.example.org/v1/chat/completions", "model"))
-        with patch("urllib.request.urlopen", side_effect=OSError("offline")):
+        with patch("urllib.request.OpenerDirector.open", side_effect=OSError("offline")):
             with self.assertRaises(ProviderError):
                 provider("prompt")
