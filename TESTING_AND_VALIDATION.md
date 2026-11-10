@@ -13,3 +13,13 @@
 ## Zakres dowodowy
 
 Testy Python/JS i kompilacja ze stubami nie potwierdzają działania pełnego Android SDK, natywnego bootstrap, Git ani llama.cpp na telefonie. Zewnętrzny audyt nie został wykonany. Nie przeprowadzono benchmarków porównawczych z GitHub Actions.
+
+## Testy integracji oficjalnych repozytoriów (10.11.2026)
+
+```bash
+PYTHONPATH=.:backend python3 -m pytest -q tests backend/tests
+node --test tests/test_ui.mjs tests/test_builder.mjs
+python3 -m tools.oss_upstreams audit
+```
+
+Wyniki: **216 testów Python PASS + 4 podtesty PASS**, **15 testów JavaScript PASS**. Własne testy nowego synchronizatora obejmują rzeczywisty lokalny checkout Git, SHA commita, licencję, wykrywanie zmian, brak nadpisywania oraz odmowę pracy na niebezpiecznych ścieżkach. `build_custom_termux.sh` odrzuca ref niezgodny z lock. Wyniki nie stanowią testu fizycznego Androida ani kompilacji Termux.
