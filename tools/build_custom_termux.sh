@@ -4,7 +4,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: tools/build_custom_termux.sh --termux-ref <40-char SHA> --editor-prefix <dir> --work-dir <dir>
+Usage: tools/build_custom_termux.sh --editor-prefix <dir> --work-dir <dir> [--lock <path>] [--termux-ref <40-char SHA>]
 
 Requires: Linux x86_64, git, Docker daemon, network access, substantial disk space.
 Builds Python, Git, llama-cpp and Node.js for /data/data/org.omega.actions/files/usr.
@@ -13,21 +13,31 @@ No binary is silently downloaded or replaced by a host build.
 EOF
 }
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LOCK="$ROOT/config/upstreams.lock.json"
 TERMUX_REF=''; EDITOR_PREFIX=''; WORK_DIR=''; PACKAGE='org.omega.actions'
 while (( $# )); do
   case "$1" in
     --termux-ref) TERMUX_REF="${2:-}"; shift 2;;
+    --lock) LOCK="${2:-}"; shift 2;;
     --editor-prefix) EDITOR_PREFIX="${2:-}"; shift 2;;
     --work-dir) WORK_DIR="${2:-}"; shift 2;;
     -h|--help) usage; exit 0;;
     *) echo "Invalid argument: $1" >&2; usage >&2; exit 2;;
   esac
 done
-[[ "$TERMUX_REF" =~ ^[a-fA-F0-9]{40}$ ]] || { echo 'BLOCKED: --termux-ref must be a pinned 40-character Git SHA' >&2; exit 2; }
+command -v python3 >/dev/null || { echo 'BLOCKED: python3 unavailable for source lock' >&2; exit 3; }
+PINNED_REF="$(PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}" python3 -m tools.oss_upstreams resolve --lock "$LOCK" --id termux-packages)" || {
+  echo 'BLOCKED: invalid source lock' >&2; exit 2;
+}
+[[ "$PINNED_REF" =~ ^[a-f0-9]{40}$ ]] || { echo 'BLOCKED: source lock has no valid pinned SHA' >&2; exit 2; }
+if [[ -n "$TERMUX_REF" && "$TERMUX_REF" != "$PINNED_REF" ]]; then
+  echo 'BLOCKED: --termux-ref differs from pinned source lock' >&2; exit 2
+fi
+TERMUX_REF="$PINNED_REF"
 [[ -d "$EDITOR_PREFIX" && -d "$WORK_DIR" ]] || { echo 'BLOCKED: --editor-prefix and --work-dir must exist' >&2; exit 2; }
 for cmd in git docker python3; do command -v "$cmd" >/dev/null || { echo "BLOCKED: $cmd unavailable" >&2; exit 3; }; done
 docker info >/dev/null 2>&1 || { echo 'BLOCKED: Docker daemon unavailable' >&2; exit 3; }
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK_DIR="$(cd "$WORK_DIR" && pwd)"
 EDITOR_PREFIX="$(cd "$EDITOR_PREFIX" && pwd)"
 REPO="$WORK_DIR/termux-packages"
