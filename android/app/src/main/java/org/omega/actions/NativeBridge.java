@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.omega.actions.core.GgufMetadataReader;
 import org.omega.actions.core.HfUrl;
+import org.omega.actions.core.OmegaNative;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -55,7 +56,7 @@ public final class NativeBridge {
     }
     @JavascriptInterface public String capabilities(){
         JSONObject out=new JSONObject();
-        try{out.put("android_shell",true).put("termux_bootstrap",bin("bash").canExecute())
+        try{out.put("native_core_arm64",OmegaNative.available()).put("native_core_abi",OmegaNative.version()).put("android_shell",true).put("termux_bootstrap",bin("bash").canExecute())
                 .put("python",bin("python").canExecute()).put("git",bin("git").canExecute())
                 .put("llama_cli",bin("llama-cli").canExecute()).put("keystore",true)
                 .put("hf_download",true).put("gguf_import",true).put("bootstrap_bundled",TermuxBootstrapInstaller.isBundled(activity))
