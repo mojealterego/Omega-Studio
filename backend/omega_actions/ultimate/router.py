@@ -45,7 +45,10 @@ class NetworkChaosRequest(BaseModel):
 
 
 class WorkspaceCreateRequest(BaseModel):
-    name: str = Field(min_length=1, max_length=64, pattern=r'^[A-Za-z0-9][A-Za-z0-9_-]*
+    name: str = Field(min_length=1, max_length=64, pattern=r'^[A-Za-z0-9][A-Za-z0-9_-]*$')
+
+
+class NoCodeRequest(BaseModel):
     description: str = Field(min_length=1, max_length=4000)
 
 
