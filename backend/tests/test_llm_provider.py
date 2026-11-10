@@ -45,6 +45,18 @@ class ProviderTests(unittest.TestCase):
         with self.assertRaises(ProviderError):
             provider("x" * 262145)
 
+    def test_loopback_provider_disables_environment_proxy(self):
+        provider = ChatCompletionProvider(ProviderConfig(
+            "http://127.0.0.1:8081/v1/chat/completions", "model"))
+        with patch("urllib.request.build_opener", wraps=__import__("urllib.request", fromlist=["build_opener"]).build_opener) as build:
+            with patch("urllib.request.OpenerDirector.open", return_value=FakeResponse(
+                    {"choices": [{"message": {"content": "ok"}}]})):
+                self.assertEqual(provider("prompt"), "ok")
+        proxy_handlers = [handler for handler in build.call_args.args
+                          if isinstance(handler, __import__("urllib.request", fromlist=["ProxyHandler"]).ProxyHandler)]
+        self.assertEqual(len(proxy_handlers), 1)
+        self.assertEqual(proxy_handlers[0].proxies, {})
+
     def test_network_failure_is_normalized(self):
         provider = ChatCompletionProvider(ProviderConfig(
             "https://api.example.org/v1/chat/completions", "model"))
