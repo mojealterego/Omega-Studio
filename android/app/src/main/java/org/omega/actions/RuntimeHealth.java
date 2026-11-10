@@ -14,6 +14,14 @@ public final class RuntimeHealth {
     private RuntimeHealth() {}
     private static final String[] COMMANDS={"bash","python","git","llama-cli","node","code-server"};
 
+    public static void assertHealthy(File filesDir) throws IOException {
+        Map<String,String> result=probe(filesDir);
+        for(Map.Entry<String,String> entry:result.entrySet()) {
+            if(!entry.getValue().startsWith("PASS:"))
+                throw new IOException("Android ARM64 runtime failed: "+entry.getKey()+" ("+entry.getValue()+")");
+        }
+    }
+
     public static Map<String,String> probe(File filesDir) {
         Map<String,String> result=new LinkedHashMap<>();
         for(String name:COMMANDS) result.put(name,version(filesDir,name));
@@ -46,7 +54,10 @@ public final class RuntimeHealth {
             }
             reader.join(1000);
             if(process.exitValue()!=0)return "FAILED: exit="+process.exitValue();
-            synchronized(buffer){return "PASS: "+buffer.toString().replace('\n',' ').trim();}
+            synchronized(buffer){
+                String version=buffer.toString().replace('\n',' ').trim();
+                return version.isEmpty()?"FAILED: empty version output":"PASS: "+version;
+            }
         }catch(Exception e){return "FAILED: "+e.getClass().getSimpleName();}
         finally{if(process!=null&&process.isAlive())process.destroyForcibly();}
     }
