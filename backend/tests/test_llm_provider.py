@@ -80,6 +80,23 @@ class ProviderTests(unittest.TestCase):
                 with self.assertRaises(ProviderError):
                     ProviderConfig(endpoint, "model")
 
+    def test_api_key_must_be_safe_header_text(self):
+        for api_key in (None, 17, "bad\\r\\nInjected: yes", "bad\\nInjected: yes"):
+            with self.subTest(api_key=api_key):
+                with self.assertRaises(ProviderError):
+                    ProviderConfig("https://api.example.org/v1/chat/completions",
+                                   "model", api_key=api_key)
+
+    def test_provider_rejects_non_object_json(self):
+        provider = ChatCompletionProvider(ProviderConfig(
+            "http://localhost:8081/v1/chat/completions", "model"))
+        for payload in (None, "hello", 42, True):
+            with self.subTest(payload=payload):
+                with patch("urllib.request.OpenerDirector.open",
+                           return_value=FakeResponse(payload)):
+                    with self.assertRaises(ProviderError):
+                        provider("prompt")
+
     def test_network_failure_is_normalized(self):
         provider = ChatCompletionProvider(ProviderConfig(
             "https://api.example.org/v1/chat/completions", "model"))
