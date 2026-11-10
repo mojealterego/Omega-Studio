@@ -1,3 +1,7 @@
+# OMEGA Studio v1.3 — stan: SOURCE + RUNTIME SUPPLY CHAIN, nie produkcyjny APK
+
+**Wymagane binaria ARM64 i test Android 17 nie są jeszcze dostępne.** Release APK pozostaje zablokowany przez bramkę `tools/verify_runtime_bundle.py`. Dokumentacja: `docs/REAL_RUNTIME_BUILD_v13.md`, `docs/RELEASE_STATUS_v13.md`.
+
 # OMEGA Studio — Sovereign AppBuilder / Local CI v1.2.0
 
 **Polski, lokalny edytor Code/NoCode** z autorskim AppBuilderem dla statycznych aplikacji webowych i aplikacji natywnych Android. Zawiera ponadto istniejący backend Python CI/CD, moduły GitHub, GGUF, Hugging Face, czat wielomodelowy i katalog dostawców API.

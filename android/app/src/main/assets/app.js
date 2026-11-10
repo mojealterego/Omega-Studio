@@ -165,6 +165,24 @@ if(typeof document!=='undefined'){
     try{$('#runtimeStatus').textContent=JSON.stringify(await nativeCall('installBootstrap'));}
     catch(e){$('#runtimeStatus').textContent='Runtime niedostępny: '+String(e.message||e);}
   });
+  $('#vscodeStart').addEventListener('click',async()=>{
+    const out=$('#vscodeStatus');out.textContent='Uruchamianie code-server (maks. 20 sekund)…';
+    try{const r=await nativeCall('startCodeServer');out.textContent='Serwer: '+r.url+'\nHasło jednorazowe: '+r.password+'\nStatus: GOTOWY';}
+    catch(e){out.textContent='BŁĄD: '+String(e.message||e);}
+  });
+  $('#vscodeOpen').addEventListener('click',async()=>{
+    try{await nativeCall('openCodeServer');}
+    catch(e){$('#vscodeStatus').textContent='BŁĄD: '+String(e.message||e);}
+  });
+  $('#vscodeStop').addEventListener('click',async()=>{
+    try{await nativeCall('stopCodeServer');$('#vscodeStatus').textContent='Serwer zatrzymany. Hasło sesji unieważnione.';}
+    catch(e){$('#vscodeStatus').textContent='BŁĄD: '+String(e.message||e);}
+  });
+  $('#runtimeProbe').addEventListener('click',async()=>{
+    const out=$('#vscodeStatus');out.textContent='Sprawdzanie rzeczywistego wykonania binariów ARM64…';
+    try{out.textContent=JSON.stringify(await nativeCall('runtimeHealth'),null,2);}
+    catch(e){out.textContent='BŁĄD: '+String(e.message||e);}
+  });
   $('#ciRun').addEventListener('click',async()=>{
     const file=$('#ciFile').files[0];const out=$('#ciRunResult');
     if(!file||file.size>1024*1024){out.textContent='Wybierz workflow YAML do 1 MiB.';return;}

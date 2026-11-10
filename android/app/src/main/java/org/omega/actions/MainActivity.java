@@ -55,6 +55,7 @@ public final class MainActivity extends Activity {
         web.addJavascriptInterface(bridge,"omega");
         web.loadUrl("file:///android_asset/index.html");
     }
+    public void openEditor(){runOnUiThread(()->startActivity(new Intent(this,CodeEditorActivity.class)));}
     public void pickModel(String callbackId){
         runOnUiThread(()->{
             pendingModelCallback=callbackId;

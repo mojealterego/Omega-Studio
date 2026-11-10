@@ -26,7 +26,7 @@ public final class NativeBridge {
     private static final int MAX_COMMAND=2048;
     private static final long MAX_MODEL=50L*1024*1024*1024;
     public NativeBridge(MainActivity activity,WebView web){this.activity=activity;this.web=web;this.vault=new SecureVault(activity);}
-    public void shutdown(){workers.shutdownNow();}
+    public void shutdown(){workers.shutdownNow();CodeServerManager.get().stop();}
     private static String error(Exception e){try{return new JSONObject().put("error",e.getClass().getSimpleName()+": "+String.valueOf(e.getMessage())).toString();}catch(Exception ignored){return "{\"error\":\"Native operation failed\"}";}}
     public void callback(String id,String json){
         if(id==null||!id.matches("[a-zA-Z0-9_-]{1,48}"))return;
@@ -36,6 +36,19 @@ public final class NativeBridge {
     private void task(String id,Callable<String> op){workers.execute(()->{try{callback(id,op.call());}catch(Exception e){callback(id,error(e));}});}
     private File prefix(){return new File(activity.getFilesDir(),"usr");}
     private File bin(String name){return new File(prefix(),"bin/"+name);}
+    @JavascriptInterface public void runtimeHealth(String id){task(id,()->
+        new JSONObject().put("probes",new JSONObject(RuntimeHealth.probe(activity.getFilesDir()))).toString());}
+    @JavascriptInterface public void startCodeServer(String id){task(id,()->{
+        CodeServerManager.Session session=CodeServerManager.get().start(activity.getFilesDir());
+        return new JSONObject().put("ready",true).put("url",session.url).put("password",session.password).toString();
+    });}
+    @JavascriptInterface public void stopCodeServer(String id){task(id,()->{
+        CodeServerManager.get().stop();return new JSONObject().put("stopped",true).toString();
+    });}
+    @JavascriptInterface public void openCodeServer(String id){task(id,()->{
+        if(!CodeServerManager.get().isRunning())throw new IOException("VS Code server is not running");
+        activity.openEditor();return new JSONObject().put("opened",true).toString();
+    });}
     @JavascriptInterface public String providerCatalog(){
         try{return new ProviderCatalog(activity).publicCatalog();}
         catch(Exception e){return "{\"error\":\"Provider catalog unavailable\"}";}
@@ -45,7 +58,9 @@ public final class NativeBridge {
         try{out.put("android_shell",true).put("termux_bootstrap",bin("bash").canExecute())
                 .put("python",bin("python").canExecute()).put("git",bin("git").canExecute())
                 .put("llama_cli",bin("llama-cli").canExecute()).put("keystore",true)
-                .put("hf_download",true).put("gguf_import",true).put("bootstrap_bundled",TermuxBootstrapInstaller.isBundled(activity));
+                .put("hf_download",true).put("gguf_import",true).put("bootstrap_bundled",TermuxBootstrapInstaller.isBundled(activity))
+                .put("node",bin("node").canExecute()).put("vscode",bin("code-server").canExecute())
+                .put("vscode_running",CodeServerManager.get().isRunning());
         }catch(Exception ignored){}
         return out.toString();
     }

@@ -5,19 +5,20 @@ import struct
 import zipfile
 import pytest
 from tools.verify_runtime_bundle import inspect_runtime_bundle, RuntimeBundleError
+from tests.test_runtime_supply_chain_v13 import elf_arm64
 
 
 def synthetic_elf(machine=183):
-    b=bytearray(64);b[:4]=b'\x7fELF';b[4]=2;b[5]=1
-    struct.pack_into('<H',b,16,3);struct.pack_into('<H',b,18,machine)
-    return bytes(b)
+    return elf_arm64(machine=machine)
 
 
 def make_bundle(tmp_path, files=None, prefix='org.omega.actions', machine=183):
     assets=tmp_path/'assets';assets.mkdir()
     archive=assets/'bootstrap-aarch64-v8a.zip'
-    content=files or {f'bin/{name}':synthetic_elf(machine) for name in ('bash','python','git','llama-cli')}
-    content.setdefault('SYMLINKS.txt','libpython.so←lib/libpython.so\n')
+    content=files or {f'bin/{name}':synthetic_elf(machine) for name in ('bash','python','git','llama-cli','node')}
+    content.setdefault('bin/code-server',b'#!/data/data/org.omega.actions/files/usr/bin/bash\n')
+    content.setdefault('share/code-server/main.js',b'console.log(42)\n')
+    content.setdefault('SYMLINKS.txt','lib/libpython.so←lib/libpython-omega.so\n')
     content.setdefault('lib/libpython.so',synthetic_elf(machine))
     with zipfile.ZipFile(archive,'w') as z:
         for name,data in content.items():z.writestr(name,data)
@@ -35,7 +36,7 @@ def test_valid_arm64_structural_bundle(tmp_path):
     assets=make_bundle(tmp_path)
     result=inspect_runtime_bundle(assets,'org.omega.actions')
     assert result['abi']=='arm64-v8a'
-    assert result['required_commands']==['bash','python','git','llama-cli']
+    assert result['required_commands']==['bash','python','git','llama-cli','node','code-server']
     assert result['verified_sha256'] is True
     assert result['execution_verified'] is False
 
