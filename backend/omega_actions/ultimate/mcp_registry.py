@@ -6,6 +6,8 @@ import json
 import os
 import re
 import tempfile
+import ipaddress
+from urllib.parse import urlsplit
 
 _NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}\Z")
 _ALLOWED_TRANSPORTS = frozenset({"stdio", "streamable-http"})
@@ -33,10 +35,28 @@ class MCPServer:
             if self.url:
                 raise MCPRegistryError("stdio cannot define URL")
         else:
-            from urllib.parse import urlsplit
-            parsed = urlsplit(self.url)
-            if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or parsed.fragment:
-                raise MCPRegistryError("HTTP MCP requires HTTPS URL without credentials or fragment")
+            if not isinstance(self.url, str) or len(self.url) > 4096:
+                raise MCPRegistryError("Invalid MCP URL")
+            try:
+                parsed = urlsplit(self.url)
+                port = parsed.port
+            except ValueError as exc:
+                raise MCPRegistryError("Malformed MCP URL") from exc
+            if (parsed.scheme != "https" or not parsed.hostname or parsed.username
+                    or parsed.password or parsed.fragment or port not in (None, 443)
+                    or any(ord(ch) < 33 for ch in self.url)):
+                raise MCPRegistryError("HTTP MCP requires canonical HTTPS endpoint")
+            hostname = parsed.hostname.rstrip(".").lower()
+            if hostname == "localhost" or hostname.endswith(".localhost") or hostname.endswith(".local"):
+                raise MCPRegistryError("Local network MCP URL denied")
+            try:
+                ip = ipaddress.ip_address(hostname)
+            except ValueError:
+                if "." not in hostname or not re.fullmatch(r"[a-z0-9.-]+", hostname):
+                    raise MCPRegistryError("Invalid public hostname")
+            else:
+                if not ip.is_global:
+                    raise MCPRegistryError("Non-public MCP IP denied")
             if self.command:
                 raise MCPRegistryError("HTTP MCP cannot define command")
 
