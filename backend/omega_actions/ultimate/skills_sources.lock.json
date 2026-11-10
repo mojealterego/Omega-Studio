@@ -8,7 +8,8 @@
       "commit": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
       "license": "MIT",
       "license_scope": "repository",
-      "type": "skill-bundle"
+      "type": "skill-bundle",
+      "skill_files_at_revision": 39
     },
     {
       "id": "anthropics",
@@ -16,7 +17,8 @@
       "commit": "2c5958ecac7cee2b583967a2c4981d0f4a75c579",
       "license": "PER-SKILL",
       "license_scope": "per-skill",
-      "type": "skill-bundle"
+      "type": "skill-bundle",
+      "skill_files_at_revision": 20
     },
     {
       "id": "emilkowalski",
@@ -24,7 +26,8 @@
       "commit": "715c1807e08c497cfd1dc4feb450a2a3300ef2a9",
       "license": "MIT",
       "license_scope": "repository",
-      "type": "skill-bundle"
+      "type": "skill-bundle",
+      "skill_files_at_revision": 18
     },
     {
       "id": "vercel-labs",
@@ -32,7 +35,8 @@
       "commit": "26dc8e4755a11fea22ed788256c3db50001b013d",
       "license": "MIT",
       "license_scope": "repository",
-      "type": "skills-cli"
+      "type": "skills-cli",
+      "skill_files_at_revision": 5
     },
     {
       "id": "openai",
@@ -40,7 +44,8 @@
       "commit": "49f948faa9258a0c61caceaf225e179651397431",
       "license": "PER-SKILL",
       "license_scope": "per-skill",
-      "type": "skill-bundle-deprecated"
+      "type": "skill-bundle-deprecated",
+      "skill_files_at_revision": 44
     },
     {
       "id": "google",
@@ -48,7 +53,8 @@
       "commit": "793c036c3af827151ada918c5f8cba823ef7086d",
       "license": "Apache-2.0",
       "license_scope": "repository",
-      "type": "skill-bundle"
+      "type": "skill-bundle",
+      "skill_files_at_revision": 192
     },
     {
       "id": "huggingface",
@@ -56,7 +62,8 @@
       "commit": "25910b3d0ba31a2ba102f901cdc9e008c278a69c",
       "license": "Apache-2.0",
       "license_scope": "repository",
-      "type": "skill-bundle"
+      "type": "skill-bundle",
+      "skill_files_at_revision": 26
     },
     {
       "id": "awesome-agent-skills",
@@ -64,7 +71,8 @@
       "commit": "f6ecbd9ce8f4d2eae0df02f5f853d76fe8684356",
       "license": "MIT",
       "license_scope": "repository",
-      "type": "curated-index"
+      "type": "curated-index",
+      "skill_files_at_revision": 0
     },
     {
       "id": "science-skills",
@@ -72,7 +80,8 @@
       "commit": "4de6786171f1479026da5d3a00f110703c8ba35e",
       "license": "Apache-2.0",
       "license_scope": "repository",
-      "type": "skill-bundle"
+      "type": "skill-bundle",
+      "skill_files_at_revision": 40
     },
     {
       "id": "superpowers",
@@ -80,7 +89,8 @@
       "commit": "22f0b463e7a5e579904dd6211a520321035526f7",
       "license": "MIT",
       "license_scope": "repository",
-      "type": "skill-bundle"
+      "type": "skill-bundle",
+      "skill_files_at_revision": 15
     },
     {
       "id": "ui-ux-pro-max",
@@ -88,7 +98,8 @@
       "commit": "9b675f0b13c9c28dec445e8ce4633c18c39b6467",
       "license": "MIT",
       "license_scope": "repository",
-      "type": "skill-bundle"
+      "type": "skill-bundle",
+      "skill_files_at_revision": 13
     }
   ]
 }
