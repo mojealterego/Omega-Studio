@@ -77,3 +77,7 @@ W tych warunkach **nie powstał pełny APK**. Dostarczany jest kod, testy i bezp
 `tools/build_android_release.sh` uruchamia najpierw pełną bramkę bootstrap oraz test fizycznego urządzenia dla kompilacji debug, a następnie buduje `assembleRelease` z kluczem podpisu dostarczonym **wyłącznie przez zmienne środowiskowe**: `OMEGA_KEYSTORE`, `OMEGA_KEYSTORE_PASSWORD`, `OMEGA_KEY_ALIAS`, `OMEGA_KEY_PASSWORD`. Kluczy i haseł nie zapisuj w repozytorium ani plikach ZIP. Skrypt sprawdza podpis przez `apksigner verify`.
 
 Wynik podpisanego builda jest nazwany `SIGNED_RELEASE_DEVICE_TEST_PENDING`, ponieważ test debug nie dowodzi identycznego zachowania podpisanej kompilacji release. Do uznania wydania za produkcyjne potrzebny jest oddzielny test na fizycznym urządzeniu i audyt uprawnień.
+
+## Kontrola upstreamu i licencji
+
+Źródła, licencje, identyfikatory commitów, proces pobierania i zasady bezpiecznej redystrybucji opisuje [OSS_UPSTREAM_INTEGRATION.md](OSS_UPSTREAM_INTEGRATION.md). Źródłem prawdy dla wersji jest `config/upstreams.lock.json`.
