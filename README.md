@@ -28,3 +28,29 @@ Ostatnie polecenie jest **celowo blokowane**, dopóki nie ma realnego bootstrap 
 Zobacz [docs/NATIVE_RUNTIME_BUILD.md](docs/NATIVE_RUNTIME_BUILD.md) i [docs/VSCODE_AND_RUNTIME.md](docs/VSCODE_AND_RUNTIME.md).
 
 **Aktualny stan: kod źródłowy i testy integracji; NIE ukończony samodzielny APK.** Nie ma zgodnego bootstrap Termux/Python/Git/llama.cpp/Node/code-server, nie było testu na fizycznym Samsungu. Wcześniejszy APK v1.2.0 to wyłącznie podgląd UI. Żadnych płatnych GitHub Actions nie uruchomiono.
+
+## OMEGA Ultimate — synchronizacja 10.11.2026
+
+Repozytorium otrzymało nowy kod: `backend/omega_actions/ultimate/remote8080.py`,
+`remote_ide.html`, `serve.py`, `streamer.py`, `seal.py`, walidator
+`tools/verify_android_apk_release.py` i testy kontraktowe.
+
+Uruchomienie zdalnego edytora (Python 3.11+, zależności z `backend/pyproject.toml`):
+
+```bash
+export OMEGA_REMOTE_PASSWORD='własne-długie-losowe-hasło'
+PYTHONPATH=backend python -m omega_actions.ultimate.serve ./workspace --bind 127.0.0.1 --port 8080
+```
+
+Przeglądarka: `http://127.0.0.1:8080/`. Dostęp spoza urządzenia wymaga TLS,
+hasła i świadomej konfiguracji sieci. Edytor udostępnia eksplorator katalogów,
+odczyt i zapis tekstu z kontrolą konfliktów SHA-256 oraz interfejs premium.
+
+Lokalna weryfikacja pełniejszej paczki źródłowej: **197 testów Python PASS + 4 podtesty,
+15 testów JavaScript PASS, Chromium PASS**. Wersja źródłowa w ZIP obejmuje więcej
+modułów niż aktualnie zsynchronizowany podzbiór repozytorium.
+
+**Pełny APK Android z Termux, Python, Git, llama.cpp, Node.js i code-server
+nie został jeszcze zbudowany ani uruchomiony na fizycznym urządzeniu.**
+Walidator wydania odrzuca podglądowy APK bez bootstrap ARM64.
+Nie uruchomiono płatnych GitHub Actions. Repozytorium Digital-Life nie było modyfikowane.
