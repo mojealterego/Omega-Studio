@@ -112,3 +112,8 @@ Synchronizacja `Omega-Studio/main`: źródła edytora HTTP/WebSocket, CLI, walid
 ## Biblioteka źródeł Open Source (przypięte SHA)
 
 OMEGA Studio ma katalog 14 oficjalnych projektów: Termux, Termux Packages, code-server, Code-OSS **1.85.1**, llama.cpp, Git, CPython, Node.js, Monaco, xterm.js, Actions Runner i Hugging Face Hub. Lokalny menedżer pobiera je na żądanie, weryfikuje commit, licencję i integralność checkoutu. Zobacz [dokumentację upstream](docs/UPSTREAM_SOURCE_INTEGRATION.md). Pobranie kodu źródłowego nie oznacza wbudowania gotowych binariów ARM64 w APK.
+
+
+## Agent Skills Hub v2.1.0
+
+Nowe źródła Agent Skills: 11 repozytoriów z przypiętymi SHA i kontrolą licencji. Implementacja Skills Hub (import ZIP, indeks SKILL.md, lokalne API, Chat LLM, Java Android) i testy są w pakiecie źródłowym v2.1.0. Opis oraz granice weryfikacji: [docs/SKILLS_INTEGRATION.md](docs/SKILLS_INTEGRATION.md). Produkcyjny APK z pełnym bootstrap ARM64 wymaga odrębnej kompilacji i testów urządzeniowych.
