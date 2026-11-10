@@ -24,6 +24,7 @@ with socketserver.TCPServer(('127.0.0.1',0),Handler) as server:
         html=(ASSETS/'index.html').read_text().replace('<link rel="stylesheet" href="app.css">','').replace('<script src="app.js"></script>','')
         page.set_content(html,wait_until='load')
         page.add_style_tag(content=(ASSETS/'app.css').read_text())
+        page.add_script_tag(content=(ASSETS/'upstream-catalog.js').read_text())
         page.add_script_tag(content=(ASSETS/'app.js').read_text())
         assert page.title()=='OMEGA Studio'
         assert page.locator('#editor').is_visible()
@@ -51,6 +52,10 @@ with socketserver.TCPServer(('127.0.0.1',0),Handler) as server:
         page.locator('nav [data-tab=keys]').click()
         page.locator('#saveKey').click()
         assert 'Funkcja wymaga natywnej wersji' in page.locator('#keyResult').inner_text()
+        page.locator('nav [data-tab=oss]').click()
+        assert page.locator('#oss').is_visible()
+        assert page.locator('#ossSources .oss-source').count() == 14
+        assert 'termux-app' in page.locator('#ossSources').inner_text()
         page.locator('nav [data-tab=editor]').click()
         page.screenshot(path=str(ROOT/'validation/mobile_ui.png'),full_page=True)
         browser.close()
