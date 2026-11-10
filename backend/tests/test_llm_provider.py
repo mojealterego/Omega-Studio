@@ -57,6 +57,29 @@ class ProviderTests(unittest.TestCase):
         self.assertEqual(len(proxy_handlers), 1)
         self.assertEqual(proxy_handlers[0].proxies, {})
 
+    def test_malformed_response_structure_is_normalized(self):
+        provider = ChatCompletionProvider(ProviderConfig(
+            "http://127.0.0.1:8081/v1/chat/completions", "model"))
+        for payload in ([], {"choices": [None]}, {"choices": [{"message": None}]}):
+            with self.subTest(payload=payload):
+                with patch("urllib.request.OpenerDirector.open",
+                           return_value=FakeResponse(payload)):
+                    with self.assertRaises(ProviderError):
+                        provider("prompt")
+
+    def test_nonfinite_limits_are_rejected(self):
+        for timeout in (float("nan"), float("inf"), -float("inf")):
+            with self.subTest(timeout=timeout):
+                with self.assertRaises(ProviderError):
+                    ProviderConfig("http://localhost:8081/v1/chat/completions",
+                                   "model", timeout_seconds=timeout)
+
+    def test_invalid_endpoint_type_is_normalized(self):
+        for endpoint in (None, 42, [], "http://localhost:invalid/v1/chat/completions"):
+            with self.subTest(endpoint=endpoint):
+                with self.assertRaises(ProviderError):
+                    ProviderConfig(endpoint, "model")
+
     def test_network_failure_is_normalized(self):
         provider = ChatCompletionProvider(ProviderConfig(
             "https://api.example.org/v1/chat/completions", "model"))
