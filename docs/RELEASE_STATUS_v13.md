@@ -13,6 +13,6 @@
 | Test na Android 17 | Brak | Nie dotyczy | NIE |
 | Zewnętrzny audyt bezpieczeństwa | Brak | Nie dotyczy | NIE |
 
-**Wyniki lokalne:** 155 testów Python + 4 podtesty, 15 testów JavaScript, kompilacja 12 plików Java ze stubami, weryfikacja generowanego Java ze stubami. Bramka pełnego runtime: exit code 2 (BLOCKED, brak bootstrap). Nie przeprowadzono integracyjnej kompilacji APK z Android SDK ani testów na urządzeniu.
+**Wyniki lokalne:** 158 testów Python + 4 podtesty, 15 testów JavaScript, kompilacja 12 plików Java ze stubami, weryfikacja generowanego Java ze stubami. Bramka pełnego runtime: exit code 2 (BLOCKED, brak bootstrap). Nie przeprowadzono integracyjnej kompilacji APK z Android SDK ani testów na urządzeniu.
 
 Nazwa `v1.3` odnosi się do źródeł i pipeline'u produkcyjnego, **nie** do ukończonego APK. Starsze APK podglądowe pozostają wersjami demonstracyjnymi UI.
