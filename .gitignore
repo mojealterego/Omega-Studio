@@ -12,3 +12,5 @@ __pycache__/
 local.properties
 *.keystore
 *.jks
+
+upstream-sources/
