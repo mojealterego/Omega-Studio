@@ -54,3 +54,7 @@ Pobieranie źródeł z zewnętrznych repozytoriów nie daje automatycznej zgody 
 ## Zakres potwierdzenia
 
 Mechanizm source lock, walidacja i checkout są objęte lokalnymi testami. Binarne wydanie Android nie jest rezultatem samego audytu repozytoriów. Bez kompletnego bootstrap i weryfikacji na urządzeniu projekt pozostaje pakietem źródłowym.
+
+## Zintegrowany katalog aplikacji
+
+Rejestr `config/upstreams.lock.json` zawiera obecnie 14 źródeł, w tym Node.js, xterm.js i Actions Runner. Wbudowany katalog aplikacji (`android/app/src/main/assets/upstream-catalog.js`) pokazuje przypięte commity i licencje offline. Pakiet backendu zawiera niezależny moduł `omega_actions.ultimate.upstream_sources` do bezpiecznego checkoutu, weryfikacji SHA i licencji. Opis API oraz testów: [UPSTREAM_SOURCE_INTEGRATION.md](UPSTREAM_SOURCE_INTEGRATION.md).
