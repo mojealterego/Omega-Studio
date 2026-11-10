@@ -90,7 +90,7 @@ if(typeof document!=='undefined'){
     return new Promise((resolve,reject)=>{
       pending.set(id,{resolve,reject});
       try{omega[method](...args,id);}catch(e){pending.delete(id);reject(e);}
-      const limit=(method==='downloadHf'||method==='pickModel'||method==='inferModel'||method==='runWorkflow')?3600000:120000;
+      const limit=(method==='downloadHf'||method==='pickModel'||method==='inferModel'||method==='runWorkflow'||method==='installBootstrap')?3600000:120000;
       setTimeout(()=>{if(pending.has(id)){pending.delete(id);reject(new Error('Limit czasu operacji'))}},limit);
     });
   }
