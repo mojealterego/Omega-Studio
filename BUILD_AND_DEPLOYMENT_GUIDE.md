@@ -56,6 +56,7 @@ Test Chromium w tym środowisku wykonuje prawdziwy smoke test HTTP, a przegląda
 
 Pakiet nie instaluje niczego samoczynnie, nie modyfikuje GitHub Actions, nie publikuje wydań i nie przeprowadza migracji produkcyjnych. Uruchomienie na urządzeniu pozostaje świadomą decyzją właściciela środowiska.
 
-## Odtwarzalny upstream Termux / Code-OSS / GGUF
 
-Źródła, licencje, identyfikatory commitów, proces pobierania i zasady bezpiecznej redystrybucji opisuje [OSS_UPSTREAM_INTEGRATION.md](docs/OSS_UPSTREAM_INTEGRATION.md). Źródłem prawdy dla wersji jest `config/upstreams.lock.json`.
+## Rozszerzenie v2.0.0 — weryfikowalny zakres
+
+Szczegółowa macierz wymagań stron 1–11: `docs/MCODE_11_PAGE_TRACEABILITY.md`. Moduły E–H mają klasyczne, deterministyczne implementacje o ograniczonych zasobach; nie deklaruje się fizycznej przewagi kwantowej, zerowej latencji ani nieskończonej skalowalności. Dołączony ELF ARM64 jest rzeczywistym małym modułem diagnostycznym, a nie zamiennikiem Termux. Oryginalne archiwa dostarczone przez użytkownika opisuje `docs/UPLOADED_SOURCE_AUDIT.md`.

@@ -1,81 +1,71 @@
-# Referencja interfejsów
+# API Reference — OMEGA Studio Ultimate v1
 
-## Lokalne HTTP REST (źródło `api.py`)
+## Uwierzytelnianie
 
-Bazowy adres: `http://127.0.0.1:8765`. Każdy `/api/*` wymaga
-`X-OMEGA-Token: <token sesji>` i kontroli Origin. Token jest losowany
-przy uruchomieniu procesu; nie jest publicznym kluczem API. Domyślnie
-wyłączone są zapisy do GitHub i płatne wywołania OpenAI.
+Główny serwer lokalny: każdy `/api/*` wymaga `X-OMEGA-Token: <session-token>` uzyskanego z lokalnej strony `/ultimate`; dodatkowo odrzucane są obce Origin. Token nie powinien być wysyłany poza localhost. Zdalny `remote8080` jest odrębnym serwerem, z Basic auth oraz TLS dla bind spoza loopback.
 
-| Metoda | Ścieżka | Funkcja |
+## Endpoints Workbench
+
+| Metoda | Ścieżka | Parametry / wynik |
 |---|---|---|
-| `GET` | `/` | `index` |
-| `GET` | `/api/artifacts/{run_id}/{name}` | `artifact` |
-| `GET` | `/api/billing` | `billing` |
-| `POST` | `/api/compile` | `compile_endpoint` |
-| `GET` | `/api/health` | `health` |
-| `GET` | `/api/models` | `models` |
-| `POST` | `/api/models/hf/download` | `download_hf_model` |
-| `GET` | `/api/models/parameters` | `model_parameters` |
-| `POST` | `/api/models/parameters` | `save_model_parameters` |
-| `GET` | `/api/models/{name}` | `model_info` |
-| `POST` | `/api/omega/agent/run` | `omega_agent` |
-| `POST` | `/api/omega/chat` | `omega_chat` |
-| `POST` | `/api/omega/compatibility` | `omega_compatibility` |
-| `GET` | `/api/omega/github/repos` | `omega_repos` |
-| `GET` | `/api/omega/github/workflows` | `omega_github_workflows` |
-| `POST` | `/api/omega/mcp` | `omega_mcp` |
-| `POST` | `/api/omega/oauth/poll` | `omega_oauth_poll` |
-| `POST` | `/api/omega/oauth/start` | `omega_oauth_start` |
-| `GET` | `/api/omega/plans` | `omega_plans` |
-| `POST` | `/api/omega/plans` | `omega_propose` |
-| `POST` | `/api/omega/plans/{plan_id}/approve` | `omega_approve` |
-| `POST` | `/api/omega/plans/{plan_id}/execute` | `omega_execute` |
-| `POST` | `/api/omega/simulation` | `simulation_endpoint` |
-| `GET` | `/api/omega/status` | `omega_status` |
-| `GET` | `/api/omega/telemetry` | `telemetry_endpoint` |
-| `GET` | `/api/runs` | `list_runs` |
-| `POST` | `/api/runs` | `run_endpoint` |
-| `GET` | `/api/runs/{run_id}` | `get_run` |
-| `POST` | `/api/runs/{run_id}/cancel` | `cancel` |
-| `GET` | `/api/runs/{run_id}/events` | `events` |
-| `POST` | `/api/runs/{run_id}/rerun` | `rerun` |
-| `GET` | `/api/secrets` | `secret_names` |
-| `POST` | `/api/secrets` | `save_secret` |
-| `GET` | `/api/workflows` | `workflows` |
-| `GET` | `/mobile` | `mobile` |
-| `MIDDLEWARE` | `http` | `guard` |
+| GET | `/ultimate` | Premium HTML PL |
+| GET | `/api/ultimate/status` | `features`, `runtime_executables_on_host`, `scope` |
+| GET | `/api/ultimate/repositories` | `organization` (domyślnie github), `pages` (domyślnie 20); pobiera publiczne repozytoria i zapisuje SQLite |
+| GET | `/api/ultimate/search` | `q` (max 256), `limit` (1..1000); `items`, `total` |
+| POST | `/api/ultimate/assets` | JSON `{kind: svg|png|wav|gltf|mp4, text: string}`; binarne media |
+| POST | `/api/ultimate/analyze` | JSON `{source,mode:leak|duo}`; 4 statyczne analizatory AST, findings, sha256, verified |
+| POST | `/api/ultimate/nocode` | JSON `{description: string}`; `html`, `type`, `requires_cloud_ai` |
+| POST | `/api/ultimate/simulate` | `seed`, `jobs`; 10 niezmienników, wynik digital twin |
 
-### `/api/omega/simulation`
+### Przykład statusu
 
-`POST` JSON: `{"seed":20261110,"jobs":500,"workers":4,"failure_rate":0.15}`.
-`jobs` w zakresie 1..10000, `workers` 1..64, `failure_rate` 0..1.
-Odpowiedź: `scope`, `outcomes`, `faults`, `metrics`, `invariants`, `simulated_components`.
-Wywołanie nie dotyka sieci ani Digital-Life.
+```bash
+curl -H "X-OMEGA-Token: $OMEGA_TOKEN" http://127.0.0.1:8080/api/ultimate/status
+```
 
-### `/api/omega/telemetry`
+Przykład odpowiedzi: `{"features":{"repo_crawler":"ready","streaming":"ready","assets":"procedural","swarm":"bounded","nocode":"template"},"runtime_executables_on_host":{...},"scope":"host-process-not-android-apk"}`.
 
-`GET`: `ci_run` (bounded latency stats), `audit_head` (HMAC chain verification),
-`scope=LOCAL_RUNTIME_ONLY`. Błąd integralności łańcucha blokuje poprawny wynik.
+### Crawler
+
+`GitHubOrgCrawler.crawl(organization, pages=20, per_page=100)` zwraca listę rekordów `full_name`, `description`, `language`, `license`, `default_branch`, `html_url`, `size_kb`. Repozytorium nie jest klonowane przez sam indeks. `download_snapshot(owner,repo,revision,destination,max_archive_bytes=...)` wymaga 40-znakowego SHA i zwraca sumę SHA-256 pobranego ZIP oraz liczbę wyodrębnionych plików.
+
+### Multi-cloud Python API
+
+- `MultiCloudHub.gitlab_projects(page=1,per_page=100,token=None)` — lista projektów z GitLab.
+- `MultiCloudHub.hf_models(limit=100,token=None)` — lista modeli HF.
+- `MultiCloudHub.drive_files(token,page_token=None,page_size=100)` — lista plików Google Drive, wymaga OAuth.
+
+Konektory są tylko do odczytu. Nie publikują repozytoriów ani nie uruchamiają ich kodu.
+
+## Zdalny serwer `remote8080`
+
+| Metoda | Ścieżka | Kontrakt |
+|---|---|---|
+| GET | `/` | Strona statusowa premium |
+| GET | `/api/files` | Lista plików w katalogu głównym workspace (maks. 1000) |
+| GET | `/api/read?path=...` | UTF-8 do 1 MiB, `content`, `sha256` |
+| PUT | `/api/write` | `{path,content,expected_sha256}`; 409 dla konfliktu, 403 traversal |
+| WS | `/ws` | Basic Authorization przy handshake, `hello`, `ping`→`pong` |
+
+`expected_sha256` jest wymagane przy modyfikacji istniejącego pliku, aby wykryć nadpisanie równoległej zmiany.
 
 ## CLI
 
-`omega-actions validate`, `run`, `serve`, `simulate`, `act`, `watch`, `hook`, `vault`,
-`digital-twin`, `audit-verify`, `recover-interrupted`.
+`omega-ultimate {zip-pack|zip-extract|rar-pack|rar-extract|copy|asset|crawl|search|seal|simulate|serve}`; każdy błąd walidacji kończy się kodem 2 i komunikatem na stderr.
 
-`omega-models inspect`, `download`, `toolchains` (szczegóły w `model_cli.py`).
+## Istniejące API
 
-## Kontrakt Digital-Life
+`/api/providers`, `/api/providers/chat`, `/api/models`, `/api/models/hf/download`, `/api/runs`, `/api/compile`, `/api/secrets`, `/api/omega/simulation`, `/api/omega/telemetry` — ich implementacje znajdują się w `backend/omega_actions/api.py`. Zewnętrzne modele wymagają osobnej zgody na koszt, a hasła skarbca nie są zwracane do UI.
 
-`SignedEnvelope.issue(tenant,kind,payload,key,now,ttl,nonce)`;
-`SignedEnvelope.verify(envelope,key,now,tenant,replay_guard)`;
-`DigitalLifeAdapter.encode/decode` i `MigrationJournal.plan/start_shadow/approve/activate/rollback`.
-Komunikaty są podpisywane HMAC-SHA256; szczegóły w `DIGITAL_LIFE_COMPATIBILITY.md`.
+## Format błędów
 
-## REST API v1.1
+HTTP 401 brak tokenu, 403 niedozwolony Origin/ścieżka, 409 konflikt pliku, 413 za duży plik, 415 binarny plik w edytorze tekstowym, 422 walidacja wejścia, 503 brak konfiguracji usług. Brak automatycznego retry po 401/403.
 
-`GET /api/providers` — lista dostawców i status polityki kosztowej. Wymaga `X-OMEGA-Token`.
+## Biblioteka Open Source
 
-`POST /api/providers/chat` — JSON: `provider` (ID katalogu), `model`, `message`, `max_tokens` (1–4096), `confirm_cost` (boolean). Wymaga tokenu sesji, klucza z szyfrowanego vault oraz ustawienia `OMEGA_ENABLE_PAID_AI=true` dla zewnętrznych usług. Odpowiedź: `provider`, `model`, `text`, `usage`. Odpowiedzi błędne: 401, 422, 503.
+`GET /api/ultimate/upstreams` — lista źródeł, commit SHA, licencja, rola. `POST /api/ultimate/upstreams/sync` — JSON `{ "name": "termux-app", "confirm_network": true }`; wymaga nagłówka `X-OMEGA-Token`, pobiera jedynie przypięte źródło do prywatnego katalogu i zapisuje pochodzenie. Bez zgody HTTP 403, błędy walidacji HTTP 422. API nie wykonuje pobranego kodu.
 
-Android JS bridge: `chatProvider(provider,model,message,confirmCost,callbackId)`, `runWorkflow(filename,confirmUnsafe,callbackId)`, `installBootstrap(callbackId)`, `providerCatalog()`. Te metody znajdują się w źródłach natywnych; nie występują w minimalnym DEX podglądowym.
+
+## Rozszerzenie v2.0.0 — weryfikowalny zakres
+
+Szczegółowa macierz wymagań stron 1–11: `docs/MCODE_11_PAGE_TRACEABILITY.md`. Moduły E–H mają klasyczne, deterministyczne implementacje o ograniczonych zasobach; nie deklaruje się fizycznej przewagi kwantowej, zerowej latencji ani nieskończonej skalowalności. Dołączony ELF ARM64 jest rzeczywistym małym modułem diagnostycznym, a nie zamiennikiem Termux. Oryginalne archiwa dostarczone przez użytkownika opisuje `docs/UPLOADED_SOURCE_AUDIT.md`.

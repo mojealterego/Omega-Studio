@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "date": "2026-11-10",
+  "release_class": "SOURCE_WITH_ANDROID_PREVIEW",
+  "android_full_runtime_included": false,
+  "android_device_tested": false,
+  "external_security_audit": false,
+  "test_evidence": {
+    "python": "195 passed, 4 subtests passed",
+    "javascript": "15 passed",
+    "android_java": "12 source files compiled against stubs",
+    "chromium": "desktop/mobile PASS with mocked fetch",
+    "native_elf": "AArch64 ELF64 cross-compiled; host ABI CRC32 tested"
+  },
+  "artifacts": {
+    "preview_apk_sha256": "fd544e461c446da137e2e4da9dd867e851f7f7d0199c4a5b1a5e59caa662a726",
+    "native_elf_sha256": "9aa9731bddc318662c11c8710cdd986f9cdc3d6e88d16c791b4d65bb0d51c4f2"
+  },
+  "upstream": "5 user supplied source ZIPs preserved, not compiled Android runtimes",
+  "production_apk_gate": "BLOCKED_MISSING_COMPATIBLE_TERMUX_BOOTSTRAP"
+}

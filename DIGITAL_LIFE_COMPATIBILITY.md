@@ -1,46 +1,35 @@
-# Digital-Life: zgodność kontraktowa bez integracji
+# Digital-Life Compatibility — kontrakt projektowy, bez integracji
 
-Źródło referencyjne: `mojealterego/Digital-Life`, `README.md` z 2026-11-09,
-odczytane bez modyfikacji. Repozytorium opisuje NOEVARIS Ω jako jeden silnik
-`IntegratedEngine`, z rozróżnieniem `PRODUCTION_ADMISSION_SIMULATED_ONLY`
-od `DEPLOYED` i `PRODUCTION_VERIFIED`. Niniejszy pakiet jest **osobnym artefaktem
-przygotowawczym**, nie nowym silnikiem wewnątrz Digital-Life.
+Repozytoria `mojealterego/Omega-Studio` i `mojealterego/Digital-Life` były źródłami odniesienia. Żadne zmiany nie zostały wysłane do tych repozytoriów podczas przygotowania tej paczki.
 
-## Implementowany kontrakt wymiany
+## Proponowane granice
 
-`omega_actions.dl_contract.SignedEnvelope` v1.0 + `ReplayGuard` +
-`omega_actions.dl_adapter.DigitalLifeAdapter`:
-
-| Pole | Reguła |
-|---|---|
-| `version` | `1.0` |
-| `tenant` | wymagany identyfikator izolacji |
-| `kind` | `omega.studio.exchange.v1` |
-| `nonce` | 128-bit hex, unikalny w tenant |
-| `issued_at`, `expires_at` | sekundy Unix, TTL maks. 600 s |
-| `payload` | max 256 KiB kanonicznego JSON |
-| `signature` | HMAC-SHA256 z kluczem właściciela |
-
-Dozwolone możliwości: `ci.request`, `ci.result`, `model.metadata`, `research.summary`.
-`DigitalLifeAdapter` odrzuca inne capability, w tym próby `repo.push`.
-
-## Mapa odpowiedzialności
-
-| OMEGA Studio | Potencjalny odbiorca Digital-Life | Granica |
+| Obszar | OMEGA Studio Ultimate | Kontrakt wymiany |
 |---|---|---|
-| CI result / workflow metadata | warstwa lokalnych zadań | tylko zweryfikowana wiadomość |
-| GGUF metadata + SHA-256 | katalog lokalnych modeli | bez wykonywania modelu |
-| Research summary digest | indeks wiedzy | digest, nie dowód matematyczny |
-| HMAC audit head | archiwum pochodzenia | wymaga odrębnego zaufanego zakotwiczenia |
+| Repo katalog | `RepositoryIndex` SQLite | JSON z `full_name`, `sha256`, `license`, `source` |
+| Silnik workflow | `omega_actions.engine` | `run_id`, `jobs`, `status`, logi SSE |
+| Modele GGUF | `GGUFInspector`, `HFDownload` | `path`, `sha256`, `model_parameters`, `tensor_count` |
+| Rój | `SwarmCoordinator`, `DuoCoordinator` | idempotentne `task_id`, limit prób, wynik weryfikatora |
+| Assety | PNG/SVG/WAV/MP4/glTF | `mime`, `bytes`, `sha256`, metadane czasu |
+| Sekrety | `SecretVault` | referencja do sekretu, nigdy plaintext w kontrakcie |
+| Pieczęć | `seal_python_source` | `version`, `sha256`, `ast_sha256`, `chi`, `beta1`, `hmac_sha3_256` |
 
-## Kontrola konfliktów
+## Zgodność wersji
 
-Brak współdzielenia katalogów runtime, plików stanu i bazy SQLite. Adapter
-nie importuje modułów `IntegratedEngine` i nie ingeruje w jego roadmapę.
-Migracja jest reprezentowana lokalnym `MigrationJournal`, bez sieci i zapisu do repo.
-Testy symulują zgodność formatu i stanu, nie potwierdzają interoperacyjności
-z rzeczywistą wersją Digital-Life ani podpisaną migracją produkcyjną.
+Wersjonowanie semantyczne kontraktu: `omega-ultimate/v1`. Wymagane jest jawne uzgodnienie pól, a nie ciche nadpisywanie. Nieznane pola mogą być ignorowane tylko w kierunku odczytu, wymagane pola nie mogą być pomijane. Prawa tenantów i dostęp do kluczy muszą być sprawdzane po obu stronach.
 
-## v1.1
+## Izolacja
 
-Rozszerzenia Chat/API i runtime pozostają w osobnym katalogu projektu. Digital-Life nie było używane do testów wykonawczych. Dotychczasowe kontrakty `dl_contract.py`, `dl_adapter.py` i symulacja pozostają bez modyfikacji w repozytorium docelowym. Integracja GitHub pozostaje zgodna z polityką braku zapisów.
+- OMEGA Studio działa w osobnym katalogu, nie zapisuje do Digital-Life.
+- Adaptery transportowe nie otrzymują tokenów zdalnych bez jawnej konfiguracji właściciela.
+- Podczas importu źródeł obowiązuje pin SHA, skan archiwum i polityka licencji.
+- Komunikaty obcych repozytoriów, komentarze kodu i opisy issue są traktowane jako dane nieufne, nie instrukcje agenta.
+
+## Test symulacyjny
+
+Istniejący `digital_twin.py` zawiera symulowany protokół Digital-Life v1. Nowy `ultimate/simulation.py` sprawdza spójność niezmienników w izolacji. Symulacja nie potwierdza zgodności z aktualnym, żywym interfejsem Digital-Life; nie wykonano migracji ani integracji.
+
+
+## Rozszerzenie v2.0.0 — weryfikowalny zakres
+
+Szczegółowa macierz wymagań stron 1–11: `docs/MCODE_11_PAGE_TRACEABILITY.md`. Moduły E–H mają klasyczne, deterministyczne implementacje o ograniczonych zasobach; nie deklaruje się fizycznej przewagi kwantowej, zerowej latencji ani nieskończonej skalowalności. Dołączony ELF ARM64 jest rzeczywistym małym modułem diagnostycznym, a nie zamiennikiem Termux. Oryginalne archiwa dostarczone przez użytkownika opisuje `docs/UPLOADED_SOURCE_AUDIT.md`.

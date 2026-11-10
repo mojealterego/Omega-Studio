@@ -82,6 +82,33 @@
     catch (error) { set('assetStatus',`Błąd: ${error.message}`); }
     finally { $('assetButton').disabled = false; }
   });
+  $('hyperAstButton').addEventListener('click', async () => {
+    $('hyperAstButton').disabled = true;
+    try {
+      const result = await json('/api/ultimate/hyper/ast', {source: $('hyperSource').value});
+      set('hyperAstResult', JSON.stringify(result, null, 2));
+    } catch (error) { set('hyperAstResult', `Błąd: ${error.message}`); }
+    finally { $('hyperAstButton').disabled = false; }
+  });
+  $('hyperHealButton').addEventListener('click', async () => {
+    $('hyperHealButton').disabled = true;
+    try {
+      const result = await json('/api/ultimate/hyper/heal', {source: $('hyperSource').value});
+      if (result.repaired) $('hyperSource').value = result.source;
+      set('hyperAstResult', JSON.stringify(result, null, 2));
+    } catch (error) { set('hyperAstResult', `Błąd: ${error.message}`); }
+    finally { $('hyperHealButton').disabled = false; }
+  });
+  $('hyperNetworkButton').addEventListener('click', async () => {
+    $('hyperNetworkButton').disabled = true;
+    try {
+      const result = await json('/api/ultimate/hyper/network', {
+        seed: Number($('hyperSeed').value), steps: Number($('hyperSteps').value)
+      });
+      set('hyperNetworkResult', JSON.stringify(result, null, 2));
+    } catch (error) { set('hyperNetworkResult', `Błąd: ${error.message}`); }
+    finally { $('hyperNetworkButton').disabled = false; }
+  });
   $('simulateButton').addEventListener('click', async () => {
     $('simulateButton').disabled = true; set('simulationResult','Uruchamianie deterministycznej symulacji…');
     try { const seed = Number($('seed').value); const jobs = Number($('jobs').value); const result = await json(`/api/ultimate/simulate?seed=${seed}&jobs=${jobs}`, {}); set('simulationResult',JSON.stringify({status:result.status,seed:result.seed,jobs:result.jobs,invariants:result.invariants,external_twin:result.external_twin.invariants},null,2)); }

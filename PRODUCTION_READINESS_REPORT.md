@@ -1,13 +1,16 @@
-# OMEGA Studio v2 — stan wydania (2026-11-10)
+# OMEGA Studio v2.0.0 — raport dowodowy
 
-**Nie ma dowodu spełnienia 100% wymagań `MCode.pdf` ani uruchomienia pełnego Android ARM64 APK.** Kompilacja natywnej biblioteki i testy hostowe nie stanowią testów urządzenia. Szczegóły w `docs/V2_RELEASE_EVIDENCE.md`.
+**Klasa artefaktu:** źródła + referencyjne archiwa użytkownika + podpisany APK podglądowy. **Nie jest to wydanie produkcyjne Android z pełnym Termux.**
 
-- Zweryfikowano źródła pięciu archiwów użytkownika (CRC, ścieżki, SHA-256). Code-OSS w dostarczonym ZIP ma wersję 1.143.0, nie 1.85.1.
-- Zbudowano `libomega_runtime.so` dla AArch64 z rzeczywistymi funkcjami GGUF/UTF-8/checksum i JNI.
-- Wykonano hostowe testy Python/JS/C, kompilację Java ze stubami i test Chromium.
-- Podglądowy APK zawiera ELF64, DEX, binarny manifest, zasoby i podpis APK v2; nie zawiera 6 wymaganych binariów runtime.
-- Nie wykonywano audytów zewnętrznych, testów na fizycznym Androidzie ani kompilacji pełnego Code-OSS i Termux.
-- Kopie źródeł i podglądowego APK synchronizowane są z `mojealterego/Omega-Studio/main` wyłącznie z `[skip ci] [skip actions]`; `Digital-Life` bez zmian.
+Nowe testy: klasyczna analiza Hilberta AST, kontrolowana naprawa składni, dyskowy indeks pamięci, STDP, zatwierdzany CI, symulacja mobilnej sieci, endpointy FastAPI, CLI, natywny ELF64 AArch64 i podpisany APK podglądowy. Weryfikacja kompilatora hostowego nie dowodzi wykonania na fizycznym telefonie. Testy portu 8080 obejmują rzeczywisty HTTP lokalny i symulowane warunki sieciowe, nie fizyczny modem. Zewnętrzne audyty nie zostały zastąpione symulacją.
+
+**Źródła VS Code:** przesłany `vscode-main.zip` zawiera Code-OSS 1.143.0, podczas gdy wymaganie dotyczy 1.85.1. Pełna zgodność edytora z 1.85.1 nie wynika z tego archiwum.
+
+**GitHub:** wymagane commity wyłącznie na `Omega-Studio/main` z `[skip ci] [skip actions]`. `Digital-Life` pozostaje read-only. Publiczna dystrybucja archiwów bez potwierdzonej licencji jest wyłączona.
+
+Pełna macierz: `docs/MCODE_11_PAGE_TRACEABILITY.md`.
+
+---
 
 # OMEGA Studio Ultimate — Production Readiness Report
 

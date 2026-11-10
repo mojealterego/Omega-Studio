@@ -46,6 +46,9 @@ try:
         path.includes('/status') ? {features:{repo_crawler:'ready'}} :
         path.includes('/search') ? {total:20,items:[]} :
         path.includes('/nocode') ? {html:'<h1>Moja aplikacja premium</h1>'} :
+        path.includes('/hyper/ast') ? {model:'classical-complex-hilbert',dimension:24,findings:[]} :
+        path.includes('/hyper/heal') ? {source:'def f():\\n    return 1\\n',repaired:true,changes:[{line:1,rule:'missing_header_colon'}]} :
+        path.includes('/hyper/network') ? {model:'deterministic-state-machine',sent:100,lost:10,delivered:90,reconnects:2} :
         path.includes('/analyze') ? {mode:'leak',syntax_valid:true,verified:true,analyzers:4,findings:[]} :
         path.includes('/simulate') ? {status:'PASS',seed:20261110,jobs:128,invariants:{crawler:true},external_twin:{invariants:{safe:true}}} :
         {indexed:20,total:20};
@@ -74,6 +77,10 @@ try:
         assert 'Moja aplikacja premium' in page.locator('#nocodePreview').get_attribute('srcdoc')
         page.locator('#analyzeButton').click()
         page.get_by_text('\"analyzers\": 4').wait_for(timeout=10000)
+        page.locator('#hyperAstButton').click()
+        page.get_by_text('classical-complex-hilbert').wait_for(timeout=10000)
+        page.locator('#hyperNetworkButton').click()
+        page.get_by_text('deterministic-state-machine').wait_for(timeout=10000)
         page.locator('#simulateButton').click()
         page.get_by_text('"status": "PASS"').wait_for(timeout=10000)
         page.screenshot(path=str(ROOT/'validation'/'ultimate'/'premium_simulation.png'),full_page=True)

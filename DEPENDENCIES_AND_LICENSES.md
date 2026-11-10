@@ -47,6 +47,11 @@ Indeksowane repozytoria z GitHub/GitLab/HF **nie są automatycznie dołączane**
 
 Brak pełnego SBOM dla niepobranego natywnego runtime ARM64; żadne licencje nie są automatycznie uznawane za zgodne tylko dlatego, że projekt jest publiczny.
 
-## Zewnętrzne źródła OSS — przypięte commity
+## Rejestr upstream SHA
 
-Źródła, licencje, identyfikatory commitów, proces pobierania i zasady bezpiecznej redystrybucji opisuje [OSS_UPSTREAM_INTEGRATION.md](docs/OSS_UPSTREAM_INTEGRATION.md). Źródłem prawdy dla wersji jest `config/upstreams.lock.json`.
+Dodatkowy katalog `config/upstream_sources.lock.json` obejmuje 14 projektów. Zobacz [tabelę licencji i ograniczeń](docs/UPSTREAM_SOURCE_INTEGRATION.md). Prawa do binariów Termux, Git i Code-OSS nie wynikają automatycznie z publicznej dostępności źródeł.
+
+
+## Rozszerzenie v2.0.0 — weryfikowalny zakres
+
+Szczegółowa macierz wymagań stron 1–11: `docs/MCODE_11_PAGE_TRACEABILITY.md`. Moduły E–H mają klasyczne, deterministyczne implementacje o ograniczonych zasobach; nie deklaruje się fizycznej przewagi kwantowej, zerowej latencji ani nieskończonej skalowalności. Dołączony ELF ARM64 jest rzeczywistym małym modułem diagnostycznym, a nie zamiennikiem Termux. Oryginalne archiwa dostarczone przez użytkownika opisuje `docs/UPLOADED_SOURCE_AUDIT.md`.

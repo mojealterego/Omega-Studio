@@ -1,16 +1,35 @@
-# OMEGA Studio Ultimate v2.0.0 — źródła, integracja upstream i natywny ARM64
+# OMEGA Studio Ultimate — rozwój v2.0.0
 
-> **Stan dostawy:** kod źródłowy + podpisany podgląd Android + prawdziwy natywny moduł ARM64. Podgląd nie jest pełnym produkcyjnym APK Termux/VS Code. Status dowodowy: `docs/V2_RELEASE_EVIDENCE.md`.
+**Źródło wymagań:** `reference/MCode.pdf` (11 stron). **Tryb:** lokalny, open source, z rozróżnieniem testów hostowych i Android. **Repozytorium:** `mojealterego/Omega-Studio/main`.
 
-- Specyfikacja: `references/MCode.pdf` (11 stron); matryca: `docs/MCODE_11_PAGE_TRACEABILITY_v2.md`.
-- Oficjalne źródła upstream: `third_party/source_archives/*.zip` oraz SHA-256 w `third_party/UPLOADED_SOURCE_ARCHIVES.json`.
-- Silniki badawcze: `backend/omega_actions/ultimate/quantum_ast.py`, `holographic_memory.py`, `self_healing.py`, `trs_transport.py`, `mobile_network.py`, `ci_singularity.py`, `synapse.py`.
-- Android native: `native/omega_runtime.c`, `tools/build_omega_native_arm64.sh`, `android/app/src/main/jniLibs/arm64-v8a/libomega_runtime.so`.
-- APK podglądowy: `dist/OMEGA_Studio_Android_ARM64_ENGINEERING_PREVIEW_v2.0.0.apk`.
-- Testy: `PYTHONPATH=backend:. python -m pytest -q backend/tests builder/tests tests/ultimate tests/test_*.py` oraz `node --test tests/test_ui.mjs tests/test_builder.mjs`.
-- Natywny build: `bash tools/build_omega_native_arm64.sh`.
-- Weryfikacja pełnego runtime: `python -m tools.verify_runtime_bundle` oraz `python tools/verify_android_apk_release.py <apk>`; nie omija brakujących binariów.
-- Oryginalny projekt Termux wymaga dostosowania prefixu pakietu Android; gotowe binaria `com.termux` nie są zgodne z `org.omega.actions` bez odpowiedniego rebuild.
+Nowe komponenty: `quantum_topology.py`, `self_healing_ast.py`, `holographic_memory.py`, `neuromorphic_synapse.py`, `adaptive_ci.py`, `network_chaos.py`, rzeczywisty ARM64 ELF w `android/app/src/main/jniLibs/arm64-v8a/` i sekcja Hyperengineering Lab w panelu `/ultimate`. Szczegóły: `docs/MCODE_11_PAGE_TRACEABILITY.md`, `docs/HYPERENGINEERING_V2.md`, `docs/UPLOADED_SOURCE_AUDIT.md`.
+
+**Ważne:** dołączony APK to podpisany podgląd interfejsu z natywnym ELF, nie pełna dystrybucja Termux/VS Code/Python/Git/llama.cpp. Kod źródłowy upstream nie jest wykonywalnym bootstrap Android. Wydanie produkcyjne wymaga rzeczywistych zgodnych binariów i testu na urządzeniu; raport nie zastępuje tych dowodów.
+
+## Uruchomienie
+
+```bash
+cd backend
+python3 -m pip install -r requirements.txt
+export OMEGA_ACTIONS_HOME="$HOME/.omega-studio-local"
+python3 -m uvicorn omega_actions.api:create_app --factory --host 127.0.0.1 --port 8080
+```
+
+`http://127.0.0.1:8080/ultimate` — interfejs premium. API używa lokalnego tokenu sesji i kontroli Origin. Zdalny dostęp spoza loopback wymaga TLS i uwierzytelnienia.
+
+## Testy
+
+```bash
+PYTHONPATH=backend:. python3 -m pytest -q backend/tests builder/tests tests/ultimate tests/test_android_apk_release_gate.py tests/test_backend_asset_v11.py tests/test_runtime_bundle_v11.py
+node --test tests/test_ui.mjs tests/test_builder.mjs
+PYTHONPATH=backend:. python3 tools/test_ultimate_browser.py
+python3 -m tools.build_native_arm64 android/app/src/main/jniLibs/arm64-v8a/libomega_runtime.so
+python3 -m tools.build_embedded_apk dist/OMEGA_Studio_Android_ARM64_Preview_v2.0.0.apk
+```
+
+Pełny przewodnik w `BUILD_AND_DEPLOYMENT_GUIDE.md` i `docs/ANDROID_BUILD.md`.
+
+---
 
 # OMEGA Studio Ultimate — izolowany pakiet źródłowy v1.0.0
 

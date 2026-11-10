@@ -1,68 +1,47 @@
-# Specyfikacja inżynieryjna i niezmienniki
+# Specyfikacja inżynieryjna i matematyczna
 
-## Retry, obwód awaryjny i obserwowalność
+## 1. Bounded Memory-Mapped Streamer
 
-`RetryPolicy` stosuje ograniczoną liczbę prób `1 <= N <= 100`. Dla kolejnego opóźnienia
-`i=0..N-2`:
+Dla pliku o rozmiarze `N` i okna `W` (`4 KiB ≤ W ≤ 64 MiB`) `WindowedReader.read_at(offset,length)` mapuje zakres od granicy strony systemowej `P` do `length+P`. Maksymalny rozmiar pojedynczego mapowania: `W+P`. Złożoność pamięci **O(W)**, a dla stałego `W` niezależna od `N` (potocznie O(1) względem wielkości pliku). Pełny SHA-256 wymaga czasu O(N) i odczytu całego pliku. `copy_file` wykorzystuje `os.sendfile` na obsługiwanych platformach i porównuje SHA-256 źródła oraz pliku tymczasowego przed atomowym `os.replace`. Nie istnieje fizycznie zerowy czas dostępu do danych na nośniku.
 
-\[
- d_i = \min(d_{max}, \min(d_{max},d_0 2^i) \cdot (1-J/2+J U_i)), \quad U_i \in [0,1).
-\]
+## 2. Konserwatywna dyfuzja grafowa roju
 
-`U_i` jest deterministycznie generowane przez `random.Random(seed)` w testach; produkcyjne
-użycie nie powinno polegać na przewidywalności jittera jako zabezpieczeniu kryptograficznym.
-`AdaptiveCircuitBreaker` implementuje `closed -> open -> half_open -> closed/open`,
-z pojedynczą próbą w stanie half-open, zegarem monotonicznym i blokadą `threading.Lock`.
-Nie jest to struktura lock-free ani twarda gwarancja czasu rzeczywistego.
+Dla krawędzi `(i,j)` i pojemności `c_i>0` obliczana jest presja `p = L_i/c_i - L_j/c_j`. Transfer `δ = clamp(ηp, -L_j, L_i)` dla `0<η≤0.5`. Aktualizacja `L_i ← L_i-δ`, `L_j ← L_j+δ` zachowuje `ΣL_i` i `L_i≥0`. Heurystyka nie jest fizycznym rozwiązaniem przepływu Ricciego, a nazwa „Ricci” w specyfikacji jest inspiracją, nie twierdzeniem o własnościach krzywizny.
 
-`LatencyTelemetry` utrzymuje dla każdego klucza `deque(maxlen=capacity)` i licznik całkowity.
-Percentyle liczone są metodą nearest-rank dla **próbek z okna**; pamięć jest ograniczona
-przez `capacity` dla każdego klucza. Brak gwarancji sub-millisecond tail latency.
+`SwarmCoordinator` utrzymuje `max_workers≤64`, `max_pending≤4096`, odbiera wyniki w kolejności wejściowej. `DuoCoordinator` wykonuje `1..32` prób, a niezaliczone wyniki kończą się wyjątkiem. To deterministyczna kontrola budżetu, nie samoreplikacja agentów.
 
-## Trwałość i integralność
+## 3. TRS-SEAL
 
-`DurableLeaseQueue` wykorzystuje SQLite `BEGIN IMMEDIATE` do atomowego `claim` i `recover`.
-Własność: `attempts <= max_attempts`; zakończenie wymaga aktualnego właściciela i
-niewygasłej dzierżawy. Model jest **at-least-once**, a nie exactly-once dla efektów zewnętrznych.
-Dla operacji z efektami ubocznymi odbiorca musi stosować klucz idempotencji.
+Dla drzewa składniowego Pythona `G=(V,E)`:
 
-Łańcuch audytu:
+- `χ = |V| - |E|` — charakterystyka Eulera grafu.
+- `β₁ = |E| - |V| + C` — liczba niezależnych cykli w grafie nieskierowanym o `C` składowych.
+- Kanoniczny AST = `ast.dump(..., include_attributes=False)`; dodatkowo SHA-256 pełnych bajtów źródła.
+- HMAC-SHA3-256 z niezależnym sekretem obejmuje wersję, obydwa skróty i metryki grafu.
 
-\[
- h_i = \operatorname{HMAC}_{SHA256}(K,\operatorname{CanonicalJSON}(i,event,payload,t, h_{i-1})).
-\]
+Pieczęć wykrywa modyfikacje, nie dowodzi semantycznej poprawności, bezpieczeństwa programu ani zgodności języka innego niż Python.
 
-Klucz 256-bit jest generowany lokalnie z uprawnieniami 0600. Weryfikator wykrywa zmianę
-zawartości i kolejności rekordów; bez zewnętrznego zakotwiczenia głowy łańcucha
-nie wykryje usunięcia całej bazy i klucza przez napastnika z pełną kontrolą hosta.
+## 4. Kryptografia
 
-## Kontrakt Digital-Life
+Istniejący `SecretVault` stosuje `Argon2id(time_cost=3,memory_cost=65536 KiB,parallelism=2)`, 64 bajty materiału kluczowego, AES-256-GCM (losowy nonce 96 bitów), HMAC-SHA3-256, losowy salt 128 bitów i atomowy zapis z uprawnieniami 0600. HMAC uwierzytelnia kopertę, a AES-GCM zapewnia poufność i integralność AEAD. Stała φ i linia krytyczna ζ nie zapewniają dodatkowej entropii kryptograficznej; nie używa się ich jako zamiennika standardowych prymitywów.
 
-Protokół `1.0`, kanoniczny JSON UTF-8, `tenant`, `kind`, `nonce` (128-bit),
-`issued_at`, `expires_at`, `payload`, `signature` (HMAC-SHA256). `MAX_PAYLOAD=256 KiB`,
-`MAX_TTL=600 s`; okno dopuszczalnego przesunięcia zegara 30 s. Anty-replay:
-SQLite `UNIQUE(tenant,nonce)` i kontrola czasu ważności.
+## 5. ZIP/RAR
 
-## Symulator
+ZIP64 z deterministycznymi timestampami; ekstrakcja do staging, walidacja ścieżek, specjalnych plików, duplikatów, liczby plików, limitu bajtów i stosunku dekompresji. RAR wymaga `rarfile` + lokalnego dekodera dla skompresowanych wpisów; tworzenie RAR wymaga licencjonowanego programu `rar`. Nie jest deklarowana zgodność ze wszystkimi wariantami RAR5.
 
-Ziarno determinuje losowanie opóźnień, awarii workerów i błędów sieci. Zdarzenia
-`start/finish` uporządkowane są w kopcu `(czas,seq,typ,job)`. `worker_count` ogranicza
-współbieżność; liczba prób wynosi maksymalnie 4, a budżet zdarzeń maksymalnie `30*jobs`.
-Niezmienniki: brak podwójnego efektu, skończone retry, pusty backlog, bounded parallelism,
-liczba odzyskanych dzierżaw nie większa od liczby awarii workerów.
+## 6. Crawler i chmura
 
-## Ograniczenia wejścia
+GitHub `per_page≤100`, `pages≤1000`, domyślnie 20. Błąd 403/429 z wyczerpanym limitem jest jawny; brak automatycznego obchodzenia limitów. Pobranie archiwum ograniczone do `codeload.github.com` i SHA-1 commita o 40 znakach. GitLab, HF, Drive korzystają z ustalonych hostów HTTPS. Dostęp do Drive wymaga tokenu OAuth z prawami użytkownika.
 
-GGUF v2/v3: limit metadanych 8 MiB, do 100 000 kluczy, długość stringa do 1 MiB.
-HF: do 50 GiB na model, kontrola hostów HTTPS, zakresów HTTP i opcjonalny SHA-256.
-GitHub: walidowane `owner/name`, branch `omega/*`, jawne allowlisty i planowanie zmian.
-Przyspieszenia GPU/NPU i realna przepustowość Android nie były mierzone.
+## 7. Dostęp zdalny
 
-## Inwarianty v1.1
+Loopback HTTP 8080 lub TLS dla innych adresów. Basic auth używa porównania stałoczasowego, a WebSocket sprawdza Authorization przed akceptacją. Operacje plikowe są ograniczone do katalogu root, do tekstu UTF-8 do 1 MiB; zapis atomowy, kontrola wersji SHA-256. System plików lokalny pozostaje zaufaną granicą procesu; brak izolacji od innych procesów tego samego użytkownika.
 
-1. Żaden zewnętrzny provider nie zostanie wywołany bez jednoczesnego `OMEGA_ENABLE_PAID_AI=true` oraz `confirm_cost=true` w backendzie.
-2. URL dostawcy pochodzi z wbudowanego katalogu 24 usług; brak dowolnego adresu z żądania użytkownika; przekierowania HTTP nie są śledzone.
-3. Token nie jest przekazywany do JS ani do URL query; w wynikach i błędach gateway nie zwraca nagłówków autoryzacji.
-4. Bootstrap musi pasować do prefiksu `/data/data/org.omega.actions/files/usr`, SHA-256 i ELF `e_machine=183` dla wymaganych poleceń.
-5. Źródła backendu są rozpakowywane po weryfikacji SHA-256, w prywatnym katalogu, z blokadą zip-slip i limitem rozmiaru.
-6. Wykonywanie YAML wymaga zgody operatora i obecności Pythona/Git; nie ma zastępczego wykonania w systemowej powłoce.
+## 8. Symulacje
+
+Stałe ziarno PRNG, deterministyczny mock HTTP 20 stron, GGUF v3 header, DAG 2 jobów, pula agentów, graf obciążeń, auth HTTP, archiwum, HMAC AST i istniejący dyskretny bliźniak infrastruktury. Symulacja weryfikuje kontrakty, nie zastępuje fizycznego Android/ARM64, prawdziwego ruchu WAN ani niezależnego audytu.
+
+
+## Rozszerzenie v2.0.0 — weryfikowalny zakres
+
+Szczegółowa macierz wymagań stron 1–11: `docs/MCODE_11_PAGE_TRACEABILITY.md`. Moduły E–H mają klasyczne, deterministyczne implementacje o ograniczonych zasobach; nie deklaruje się fizycznej przewagi kwantowej, zerowej latencji ani nieskończonej skalowalności. Dołączony ELF ARM64 jest rzeczywistym małym modułem diagnostycznym, a nie zamiennikiem Termux. Oryginalne archiwa dostarczone przez użytkownika opisuje `docs/UPLOADED_SOURCE_AUDIT.md`.

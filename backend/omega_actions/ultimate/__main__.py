@@ -12,6 +12,10 @@ from .remote8080 import RemoteConfig, serve
 from .seal import seal_python_source
 from .simulation import run_simulation
 from .streamer import copy_file
+from .quantum_topology import QuantumASTResonator
+from .self_healing_ast import repair_python_source
+from .network_chaos import simulate_mobile_network
+from .holographic_memory import HolographicMemoryWeaver
 
 
 def main(argv=None) -> int:
@@ -38,6 +42,18 @@ def main(argv=None) -> int:
     sub = commands.add_parser('simulate')
     sub.add_argument('--seed',type=int,default=20261110)
     sub.add_argument('--jobs',type=int,default=128)
+    sub = commands.add_parser('quantum')
+    sub.add_argument('source', type=Path)
+    sub = commands.add_parser('heal')
+    sub.add_argument('source', type=Path)
+    sub = commands.add_parser('network-chaos')
+    sub.add_argument('--seed', type=int, default=20261110)
+    sub.add_argument('--steps', type=int, default=1000)
+    sub.add_argument('--loss', type=float, default=0.1)
+    sub.add_argument('--jitter-ms', type=int, default=50)
+    sub = commands.add_parser('holographic-index')
+    sub.add_argument('source', type=Path)
+    sub.add_argument('--index', type=Path, required=True)
     sub = commands.add_parser('serve')
     sub.add_argument('workspace',type=Path)
     sub.add_argument('--bind',default='127.0.0.1')
@@ -76,6 +92,12 @@ def main(argv=None) -> int:
         secret=os.getenv(args.key_env,'').encode()
         result=seal_python_source(args.source.read_text('utf-8'),secret=secret)
     elif args.command=='simulate':result=run_simulation(seed=args.seed,jobs=args.jobs)
+    elif args.command=='quantum':result=QuantumASTResonator().analyze(args.source.read_text('utf-8'))
+    elif args.command=='heal':result=repair_python_source(args.source.read_text('utf-8'))
+    elif args.command=='network-chaos':
+        result=simulate_mobile_network(seed=args.seed,steps=args.steps,loss=args.loss,jitter_ms=args.jitter_ms)
+    elif args.command=='holographic-index':
+        result=HolographicMemoryWeaver(args.index).index(args.source)
     elif args.command=='serve':
         config=RemoteConfig(bind=args.bind,port=args.port,username=args.username,
                             password=os.getenv(args.password_env,''),tls_cert=args.tls_cert,tls_key=args.tls_key)

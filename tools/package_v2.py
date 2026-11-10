@@ -1,73 +1,119 @@
-"""Deterministic offline release package with verified uploaded source archives."""
+"""Deterministic, streaming ZIP64 source bundle with SHA-256 manifest.
+
+Unmodified user-supplied upstream archives are references, not Android binaries.
+The package does not claim production APK readiness.
+"""
 from __future__ import annotations
 import argparse
 import hashlib
 import json
 from pathlib import Path
+import stat
 import zipfile
 
-ROOT = Path(__file__).resolve().parents[1]
-TIMESTAMP = (2026, 11, 10, 0, 0, 0)
-ARCHIVES = ('vscode-main.zip', 'termux-app-master.zip', 'llama.cpp-master.zip',
-            'vscode-droidscript-code-master.zip', 'vscode-droidscript-docs-master.zip')
+STAMP = (2026, 11, 10, 0, 0, 0)
+EXCLUDED = {'.git', '__pycache__', '.pytest_cache', '.mypy_cache', '.ruff_cache', 'node_modules', '.venv'}
 
 
-def package(output: Path, source_dir: Path) -> dict:
+def _entry(name: str, compressed: bool) -> zipfile.ZipInfo:
+    info = zipfile.ZipInfo(name, STAMP)
+    info.create_system = 3
+    info.external_attr = 0o100644 << 16
+    info.compress_type = zipfile.ZIP_DEFLATED if compressed else zipfile.ZIP_STORED
+    return info
+
+
+def _iter_project(root: Path):
+    for path in sorted(root.rglob('*')):
+        rel = path.relative_to(root)
+        if any(part in EXCLUDED for part in rel.parts):
+            continue
+        if path.is_symlink():
+            raise ValueError('Symlink cannot be included in package: ' + str(rel))
+        if path.is_file() and rel.as_posix() != 'MANIFEST_SHA256.txt':
+            yield path, 'project/' + rel.as_posix(), path.suffix.lower() not in ('.zip', '.apk', '.png', '.jpg', '.pdf', '.so')
+
+
+def package_release(output: Path, root: Path, *, uploads: list[Path] | None = None, pdf: Path | None = None) -> dict:
+    root = Path(root).resolve(strict=True)
     output = Path(output).resolve(strict=False)
-    source_dir = Path(source_dir).resolve(strict=True)
-    if output.is_relative_to(ROOT) or output.exists():
-        raise ValueError('Output must be outside source tree and not exist')
-    registry = json.loads((ROOT/'third_party/UPLOADED_SOURCE_ARCHIVES.json').read_text())
-    by_name = {record['archive']:record for record in registry['archives']}
-    records: list[tuple[str,Path,int]] = []
-    for path in sorted(ROOT.rglob('*')):
-        if not path.is_file() or path.is_symlink():
-            continue
-        rel = path.relative_to(ROOT).as_posix()
-        if rel in ('MANIFEST_SHA256.txt',) or '__pycache__' in path.parts or '.pytest_cache' in path.parts:
-            continue
-        if any(part in ('.git','node_modules') for part in path.parts):
-            continue
-        records.append((rel,path,zipfile.ZIP_DEFLATED))
-    for name in ARCHIVES:
-        path = source_dir/name
-        if not path.is_file():
-            raise ValueError('Required user-supplied source archive missing: '+name)
-        with path.open('rb') as stream:
-            digest = hashlib.file_digest(stream,'sha256').hexdigest()
-        if digest != by_name[name]['sha256']:
-            raise ValueError('Source archive SHA-256 mismatch: '+name)
-        records.append(('third_party/source_archives/'+name,path,zipfile.ZIP_STORED))
-    output.parent.mkdir(parents=True,exist_ok=True)
-    manifest = []
-    with zipfile.ZipFile(output,'w',allowZip64=True) as bundle:
-        for name,path,compression in records:
+    if output.is_relative_to(root):
+        raise ValueError('Output must be outside project tree')
+    output.parent.mkdir(parents=True, exist_ok=True)
+    files = list(_iter_project(root))
+    seen = {name for _, name, _ in files}
+    for source in uploads or []:
+        source = Path(source)
+        name = 'upstream/user_supplied/' + source.name
+        if name in seen or source.is_symlink() or not source.is_file() or source.suffix.lower() != '.zip':
+            raise ValueError('Unsafe or duplicate source archive')
+        seen.add(name)
+        files.append((source, name, False))
+    if pdf is not None:
+        pdf = Path(pdf)
+        if pdf.is_symlink() or not pdf.is_file():
+            raise ValueError('Invalid reference PDF')
+        files.append((pdf, 'reference/MCode.pdf', False))
+    files.sort(key=lambda entry: entry[1])
+    lines = []
+    with zipfile.ZipFile(output, 'w', allowZip64=True) as archive:
+        for source, name, compressed in files:
             digest = hashlib.sha256()
-            info = zipfile.ZipInfo('OMEGA_STUDIO_ULTIMATE_v2.0.0/'+name, date_time=TIMESTAMP)
-            info.compress_type = compression
-            info.external_attr = (0o100644 << 16)
-            with path.open('rb') as source, bundle.open(info,'w',force_zip64=path.stat().st_size>=2**31) as dest:
-                for chunk in iter(lambda:source.read(1024*1024),b''):
-                    digest.update(chunk)
-                    dest.write(chunk)
-            manifest.append(f'{digest.hexdigest()}  {name}')
-        content = ('\n'.join(manifest)+'\n').encode()
-        info = zipfile.ZipInfo('OMEGA_STUDIO_ULTIMATE_v2.0.0/MANIFEST_SHA256.txt', date_time=TIMESTAMP)
-        info.compress_type = zipfile.ZIP_DEFLATED
-        bundle.writestr(info,content)
-    with zipfile.ZipFile(output) as archive:
-        if archive.testzip() is not None:
-            raise ValueError('ZIP CRC verification failed')
-        assert len(archive.namelist()) == len(records) + 1
+            with source.open('rb') as stream, archive.open(_entry(name, compressed), 'w', force_zip64=True) as target:
+                while True:
+                    block = stream.read(1024 * 1024)
+                    if not block:
+                        break
+                    digest.update(block)
+                    target.write(block)
+            lines.append(digest.hexdigest() + '  ' + name)
+        archive.writestr(_entry('project/MANIFEST_SHA256.txt', True), ('\n'.join(lines) + '\n').encode('utf-8'))
     with output.open('rb') as stream:
-        digest = hashlib.file_digest(stream,'sha256').hexdigest()
-    return {'file':str(output),'files':len(records)+1,'bytes':output.stat().st_size,
-            'sha256':digest,'user_source_archives':len(ARCHIVES),'crc':'PASS'}
+        package_digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+    return {'archive': str(output), 'sha256': package_digest,
+            'files': len(files), 'size_bytes': output.stat().st_size,
+            'release_class': 'source-with-preview-apk-and-unmodified-reference-archives'}
+
+
+def verify_release(path: Path) -> dict:
+    with zipfile.ZipFile(path) as archive:
+        names = archive.namelist()
+        if len(names) != len(set(names)) or 'project/MANIFEST_SHA256.txt' not in names:
+            raise ValueError('Invalid or duplicate ZIP entries')
+        if archive.testzip() is not None:
+            raise ValueError('ZIP CRC failure')
+        manifest = archive.read('project/MANIFEST_SHA256.txt').decode('utf-8')
+        records = {}
+        for line in manifest.splitlines():
+            if len(line) < 67 or line[64:66] != '  ':
+                raise ValueError('Malformed manifest entry')
+            digest, name = line[:64], line[66:]
+            if len(digest) != 64 or any(c not in '0123456789abcdef' for c in digest) or name in records:
+                raise ValueError('Invalid manifest digest or duplicate')
+            records[name] = digest
+        if set(records) != set(names) - {'project/MANIFEST_SHA256.txt'}:
+            raise ValueError('Manifest does not cover every ZIP file')
+        for name, expected in records.items():
+            digest = hashlib.sha256()
+            with archive.open(name) as stream:
+                while block := stream.read(1024 * 1024):
+                    digest.update(block)
+            if digest.hexdigest() != expected:
+                raise ValueError('SHA-256 mismatch: ' + name)
+        return {'status': 'PASS', 'files_verified': len(records)}
 
 
 if __name__ == '__main__':
-    parser=argparse.ArgumentParser()
-    parser.add_argument('output',type=Path)
-    parser.add_argument('--source-dir',type=Path,required=True)
-    args=parser.parse_args()
-    print(json.dumps(package(args.output,args.source_dir),indent=2))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('output', type=Path)
+    parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument('--include-user-archives', action='store_true')
+    args = parser.parse_args()
+    upstream = Path('/mnt/data')
+    names = ['vscode-main.zip', 'vscode-droidscript-code-master.zip', 'vscode-droidscript-docs-master.zip',
+             'termux-app-master.zip', 'llama.cpp-master.zip']
+    uploads = [upstream / name for name in names] if args.include_user_archives else []
+    pdf = upstream / 'MCode.pdf' if args.include_user_archives else None
+    report = package_release(args.output, args.root, uploads=uploads, pdf=pdf)
+    report['verification'] = verify_release(args.output)
+    print(json.dumps(report, indent=2, ensure_ascii=False))
