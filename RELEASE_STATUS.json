@@ -1,15 +1,10 @@
 {
-  "version": "1.3.0-source",
-  "package": "org.omega.actions",
-  "type": "SOURCE_ONLY",
-  "open_source_catalog_entries": 14,
-  "open_source_pinned_checkout": "LOCAL_TESTED",
-  "open_source_license_provenance": "LOCAL_TESTED",
-  "open_source_ui": "CHROMIUM_TESTED",
-  "production_apk_ready": false,
   "android_arm64_runtime_included": false,
   "android_device_test": "NOT_EXECUTED",
-  "native_android_binary_execution": "NOT_EXECUTED",
+  "binary_release_ready": false,
+  "package": "org.omega.actions",
+  "production_signing": "NOT_EXECUTED",
+  "release_gate": "BLOCKED_MISSING_NATIVE_RUNTIME",
   "required_commands": [
     "bash",
     "python",
@@ -17,5 +12,26 @@
     "llama-cli",
     "node",
     "code-server"
-  ]
+  ],
+  "type": "SOURCE_WITH_ARM64_NATIVE_LIBRARY",
+  "version": "2.0.0-source",
+  "omega_studio_github_updated": true,
+  "digital_life_github_updated": false,
+  "browser_ide_host_tests": "PASS",
+  "apk_release_gate_negative_tests": "PASS",
+  "open_source_catalog_entries": 14,
+  "open_source_pinned_checkout": "LOCAL_TESTED",
+  "open_source_license_provenance": "LOCAL_TESTED",
+  "open_source_ui": "CHROMIUM_TESTED",
+  "production_apk_ready": false,
+  "native_android_binary_execution": "NOT_EXECUTED",
+  "android": {
+    "embedded_native_gguf_probe": true,
+    "termux_python_git_llama_code_server_bundled": false,
+    "device_verified": false,
+    "signed_release_apk": false
+  },
+  "host_research_modules": "LOCAL_TESTED",
+  "automation_hourly": "DISABLED_BY_USER_REQUEST",
+  "github_backup": "PENDING_SYNC"
 }
