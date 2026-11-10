@@ -78,9 +78,13 @@ Synchronizacja `Omega-Studio/main`: źródła edytora HTTP/WebSocket, CLI, walid
 
 ## Integracja oficjalnych repozytoriów open source
 
-Rejestr 11 rzeczywistych repozytoriów, przypięte SHA commitów i sprawdzanie licencji: [docs/OSS_UPSTREAM_INTEGRATION.md](docs/OSS_UPSTREAM_INTEGRATION.md). Pobieranie jest jawne, odtwarzalne i nie uruchamia kodu z repozytorium.
+Rejestr 14 rzeczywistych repozytoriów, przypięte SHA commitów i sprawdzanie licencji: [docs/OSS_UPSTREAM_INTEGRATION.md](docs/OSS_UPSTREAM_INTEGRATION.md). Pobieranie jest jawne, odtwarzalne i nie uruchamia kodu z repozytorium.
 
 ```bash
 python3 -m tools.oss_upstreams audit
 python3 -m tools.oss_upstreams sync --id termux-packages --allow-network
 ```
+
+## Biblioteka Open Source w Androidzie i backendzie
+
+Interfejs Android zawiera offline katalog 14 projektów z licencjami i przypiętymi SHA. Backend Ultimate udostępnia autoryzowane `GET /api/ultimate/upstreams` oraz `POST /api/ultimate/upstreams/sync` (świadoma zgoda na sieć). Szczegóły: [docs/UPSTREAM_SOURCE_INTEGRATION.md](docs/UPSTREAM_SOURCE_INTEGRATION.md). Dostępne są również testy rzeczywistego checkoutu Git i walidacji licencji. Pobranie źródeł nie jest równoważne kompilacji binariów ARM64.
