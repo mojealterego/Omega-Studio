@@ -1,56 +1,86 @@
-# OMEGA Studio 1.3.0 — Sovereign Android IDE / AppBuilder
+# OMEGA Studio Ultimate — izolowany pakiet źródłowy v1.0.0
 
-Polskojęzyczne środowisko Android-first z interfejsem **Obsidian & 24K Gold**, lokalnym AppBuilderem Code/NoCode, backendem Python CI/CD, GitHub, czatem AI, integracją GGUF i natywnym adapterem do code-server.
+**Język interfejsu:** polski. **Wygląd:** Obsidian `#07080A`, 24K Gold `#D4AF37`, platynowa typografia. **Tryb dostawy:** ZIP oraz kopia wybranych zmian źródłowych na `mojealterego/Omega-Studio` (`main`); bez wdrożenia.
 
-## Dostarczony kod
+OMEGA Studio łączy istniejący kod środowiska Android IDE / AppBuilder, lokalny silnik Actions CI/CD, narzędzia GGUF/Hugging Face i 24 dostawców API z nowym, rzeczywiście działającym modułem **Ultimate Workbench** dla desktopu i lokalnego serwera. Moduł obejmuje crawler organizacji GitHub, katalog SQLite, kontrolowany import źródeł, ograniczony pamięciowo streamer plików, ZIP/RAR, rój z ograniczonym budżetem, generator 2D/3D/3D+czas, audio i MP4, pieczęć AST oraz uwierzytelniony serwer przestrzeni roboczej.
 
-- AppBuilder: edytor stron i komponentów, generowanie projektów Web HTML/CSS/JS oraz natywnych źródeł Android Java.
-- Edytor kodu i terminal z asynchronicznym mostem Android; lokalny silnik CI/CD Python i obsługa GGUF.
-- Integracja VS Code przez `code-server`/Node: proces lokalny, losowe hasło, loopback, izolowany WebView bez mostu JavaScript.
-- Menedżer binariów: rygorystyczna weryfikacja SHA-256, ELF64/ARM64/Android linker, symlinków, prefiksu pakietu i kompletności zasobów edytora.
-- Automatyczna instalacja zasobów na pierwszym uruchomieniu **wyłącznie jeśli kompletny bootstrap jest w APK**.
-- Bezpieczny release gate: nie publikuje nazwy `DEVICE_VERIFIED` bez wykonania sześciu binariów na fizycznym urządzeniu.
-- Katalog 24 dostawców API, klucze w Android Keystore w kodzie natywnym; opłaty zewnętrznych modeli wymagają jawnej zgody.
+## Uruchomienie lokalnego Workbench
+
+```bash
+cd backend
+python3 -m pip install -r requirements.txt
+export OMEGA_ACTIONS_HOME="$HOME/.omega-studio-local"
+python3 -m uvicorn omega_actions.api:create_app --factory --host 127.0.0.1 --port 8080
+```
+
+Otwórz `http://127.0.0.1:8080/ultimate`. Lokalny silnik CI/CD działa pod `/`. API chroni losowy token sesji i kontrolę Origin. Panel Ultimate obsługuje polskie nazwy, ma responsywny układ premium i izolowany podgląd NoCode.
+
+## Narzędzia CLI
+
+```bash
+cd backend
+python3 -m omega_actions.ultimate simulate --seed 20261110 --jobs 128
+python3 -m omega_actions.ultimate crawl github --pages 20 --index ./repos.sqlite3
+python3 -m omega_actions.ultimate search actions --index ./repos.sqlite3
+python3 -m omega_actions.ultimate zip-pack ./moj-projekt ./moj-projekt.zip
+python3 -m omega_actions.ultimate zip-extract ./moj-projekt.zip ./rozpakowane
+python3 -m omega_actions.ultimate asset gltf ./animacja.gltf
+python3 -m omega_actions.ultimate asset mp4 ./animacja.mp4
+python3 -m omega_actions.ultimate asset svg ./logo.svg --text "OMEGA Studio"
+```
+
+Wyszukiwanie i generowanie lokalne nie wysyłają kodu do zewnętrznych modeli. Crawler uruchamia żądania sieciowe **tylko na polecenie użytkownika**. RAR wymaga odpowiedniego lokalnego dekodera lub licencjonowanego kodera. Generowanie MP4 wymaga lokalnego FFmpeg.
+
+## Zdalny dostęp do obszaru roboczego — przeglądarkowy edytor premium
+
+```bash
+export OMEGA_REMOTE_PASSWORD='silne-haslo-o-dlugosci-minimum-12'
+python3 -m omega_actions.ultimate.serve ./moj-projekt --bind 127.0.0.1 --port 8080
+```
+
+Serwer zdalny udostępnia **interaktywny przeglądarkowy edytor plików** z drzewem katalogów, klawiszem Ctrl+S, kontrolą konfliktów SHA-256, autoryzowanym API i WebSocket. Nasłuch na adresach spoza loopback wymaga certyfikatu i klucza TLS. Dostęp przez Internet wymaga kontrolowanego tunelu VPN / TLS; publiczny niezabezpieczony HTTP nie jest aktywowany.
+
+## Android i VS Code
+
+W paczce znajduje się projekt Android Java, konfiguracja Gradle, AppBuilder Web/Android, menedżer `code-server`, kontrola ELF ARM64, instalator bootstrap oraz skrypty budowy. **Nie jest to gotowy samodzielny APK z Termux/Python/Git/llama.cpp/code-server.** Zestaw binariów zgodnych z prefiksem `/data/data/org.omega.actions/files/usr` nie znajduje się w tej paczce, a SDK/ADB i urządzenie Android nie były dostępne podczas tej weryfikacji. Wcześniejszy APK w katalogu `dist/` jest wyłącznie podglądem interfejsu, bez tych binariów. Dodatkowy walidator `tools/verify_android_apk_release.py` odrzuca takie APK, sprawdza bootstrap i podpis za pomocą `apksigner`. Dokument `PRODUCTION_READINESS_REPORT.md` oddziela faktyczny zakres od żądanej gotowości.
+
+## Zakres źródeł
+
+Załączono `references/MCode.pdf` (11 stron, oryginalne wymagania) i mapę zgodności w `docs/MCode_TRACEABILITY.md`. Wskazane tam adresy organizacji GitHub stron 1–20 są traktowane jako źródło **publicznych metadanych repozytoriów**, nie jako automatyczna zgoda na uruchamianie obcego kodu.
 
 ## Weryfikacja
 
 ```bash
-PYTHONPATH=.:backend python3 -m pytest -q tests backend/tests
+PYTHONPATH=backend:. python3 -m pytest -q tests backend/tests
 node --test tests/test_ui.mjs tests/test_builder.mjs
-python3 tools/verify_android_sources.py
-bash tools/build_full_apk.sh
+PYTHONPATH=backend:. python3 -m omega_actions.ultimate simulate
+PYTHONPATH=backend:. python3 tools/benchmark_ultimate.py
+PYTHONPATH=backend:. python3 tools/test_ultimate_browser.py
 ```
 
-Ostatnie polecenie jest **celowo blokowane**, dopóki nie ma realnego bootstrap i narzędzi Android. Nie wykonuje fikcyjnego builda.
+Dowody, logi, obrazy Chromium i benchmarki są w `validation/ultimate/`. Integralność paczki sprawdza `MANIFEST_SHA256.txt`.
 
-## Ukończenie binarnego APK
+## Granice gwarancji
 
-Zobacz [docs/NATIVE_RUNTIME_BUILD.md](docs/NATIVE_RUNTIME_BUILD.md) i [docs/VSCODE_AND_RUNTIME.md](docs/VSCODE_AND_RUNTIME.md).
+Symulacja nie stanowi certyfikacji urządzenia, audytu bezpieczeństwa ani pomiaru przewagi nad konkurencją. Szyfrowanie wykorzystuje Argon2id, AES-256-GCM i HMAC-SHA3-256; liczba φ nie jest kluczem ani prymitywem kryptograficznym. Graph diffusion to rzeczywista heurystyka równoważenia obciążeń, nie obliczenia kwantowe.
 
-**Aktualny stan: kod źródłowy i testy integracji; NIE ukończony samodzielny APK.** Nie ma zgodnego bootstrap Termux/Python/Git/llama.cpp/Node/code-server, nie było testu na fizycznym Samsungu. Wcześniejszy APK v1.2.0 to wyłącznie podgląd UI. Żadnych płatnych GitHub Actions nie uruchomiono.
-
-## OMEGA Ultimate — synchronizacja 10.11.2026
-
-Repozytorium otrzymało nowy kod: `backend/omega_actions/ultimate/remote8080.py`,
-`remote_ide.html`, `serve.py`, `streamer.py`, `seal.py`, walidator
-`tools/verify_android_apk_release.py` i testy kontraktowe.
-
-Uruchomienie zdalnego edytora (Python 3.11+, zależności z `backend/pyproject.toml`):
+## Dodatkowe testy i synchronizacja
 
 ```bash
-export OMEGA_REMOTE_PASSWORD='własne-długie-losowe-hasło'
-PYTHONPATH=backend python -m omega_actions.ultimate.serve ./workspace --bind 127.0.0.1 --port 8080
+PYTHONPATH=backend:. python3 -m pytest -q tests/ultimate/test_remote_ide.py tests/test_android_apk_release_gate.py
+PYTHONPATH=backend:. python3 tools/test_remote_ide_browser.py
+PYTHONPATH=backend:. python3 tools/verify_android_apk_release.py dist/OMEGA_STUDIO_APPBUILDER_UI_PREVIEW_v1.2.0.apk
 ```
 
-Przeglądarka: `http://127.0.0.1:8080/`. Dostęp spoza urządzenia wymaga TLS,
-hasła i świadomej konfiguracji sieci. Edytor udostępnia eksplorator katalogów,
-odczyt i zapis tekstu z kontrolą konfliktów SHA-256 oraz interfejs premium.
+Ostatnie polecenie **prawidłowo kończy się blokadą**: podglądowy APK nie zawiera kompletnego bootstrap. Szczegóły w `docs/ULTIMATE_SYNC_STATUS.md`.
 
-Lokalna weryfikacja pełniejszej paczki źródłowej: **197 testów Python PASS + 4 podtesty,
-15 testów JavaScript PASS, Chromium PASS**. Wersja źródłowa w ZIP obejmuje więcej
-modułów niż aktualnie zsynchronizowany podzbiór repozytorium.
+Synchronizacja `Omega-Studio/main`: źródła edytora HTTP/WebSocket, CLI, walidatora APK, streamera, pieczęci AST i testy. Pełniejsza wersja źródłowa pozostaje w ZIP.
 
-**Pełny APK Android z Termux, Python, Git, llama.cpp, Node.js i code-server
-nie został jeszcze zbudowany ani uruchomiony na fizycznym urządzeniu.**
-Walidator wydania odrzuca podglądowy APK bez bootstrap ARM64.
-Nie uruchomiono płatnych GitHub Actions. Repozytorium Digital-Life nie było modyfikowane.
+## Integracja oficjalnych repozytoriów open source
+
+Rejestr 11 rzeczywistych repozytoriów, przypięte SHA commitów i sprawdzanie licencji: [docs/OSS_UPSTREAM_INTEGRATION.md](docs/OSS_UPSTREAM_INTEGRATION.md). Pobieranie jest jawne, odtwarzalne i nie uruchamia kodu z repozytorium.
+
+```bash
+python3 -m tools.oss_upstreams audit
+python3 -m tools.oss_upstreams sync --id termux-packages --allow-network
+```
