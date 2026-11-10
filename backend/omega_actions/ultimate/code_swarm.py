@@ -4,6 +4,9 @@ import ast
 import hashlib
 import re
 from .swarm import SwarmCoordinator, DuoCoordinator
+from .quantum_ast import ASTResonator
+from .self_healing import repair_python_syntax, RepairRejected
+from dataclasses import asdict
 
 
 def _finding(rule: str, severity: str, line: int, message: str) -> dict:
@@ -62,7 +65,7 @@ def _imports(tree: ast.AST) -> list[dict]:
     return findings
 
 
-def analyze_source(source: str, *, mode: str = 'leak') -> dict:
+def analyze_source(source: str, *, mode: str = 'leak', suggest_repair: bool = False) -> dict:
     if not isinstance(source,str) or not source or len(source.encode('utf-8'))>512*1024:
         raise ValueError('Source must be nonempty UTF-8 text under 512 KiB')
     if mode not in ('leak','duo'):
@@ -71,8 +74,15 @@ def analyze_source(source: str, *, mode: str = 'leak') -> dict:
     try:
         tree=ast.parse(source)
     except SyntaxError as exc:
-        return {'mode':mode,'syntax_valid':False,'verified':False,'sha256':digest,
-                'analyzers':0,'findings':[_finding('syntax_error','high',exc.lineno or 0,str(exc.msg))]}
+        report = {'mode':mode,'syntax_valid':False,'verified':False,'sha256':digest,
+                  'analyzers':0,'findings':[_finding('syntax_error','high',exc.lineno or 0,str(exc.msg))]}
+        if suggest_repair:
+            try:
+                report['repair'] = asdict(repair_python_syntax(source))
+            except RepairRejected:
+                report['repair'] = {'changed':False,'requires_human_review':True,
+                                    'reason':'No deterministic safe correction found'}
+        return report
     checkers=(_unsafe_calls,_secrets,_complexity,_imports)
     with SwarmCoordinator(max_workers=4,max_pending=4) as coordinator:
         reports=coordinator.map(lambda fn:fn(tree),checkers)
@@ -80,6 +90,9 @@ def analyze_source(source: str, *, mode: str = 'leak') -> dict:
     verified = DuoCoordinator(max_rounds=2).run(
         lambda text, attempt: ast.parse(text),
         lambda candidate: isinstance(candidate,ast.Module) and bool(candidate.body),source)
+    embedding = ASTResonator(dimensions=64).embed(source)
     return {'mode':mode,'syntax_valid':True,'verified':bool(verified),
             'sha256':digest,'analyzers':len(checkers),'findings':findings,
+            'ast_projection':{'dimensions':64,'self_projection':ASTResonator(64).project(embedding,embedding),
+                              'scope':'CLASSICAL_CPU_HEURISTIC'},
             'scope':'DETERMINISTIC_STATIC_ANALYSIS_NOT_LLM'}
