@@ -1,0 +1,2 @@
+{'sha256': '518da0a1adca223cfb33cad807e3c0cc76d59459033da5fa67b577223ffa6230', 'files': 50, 'bytes': 89440}
+{"status": "BLOCKED", "reason": "Missing compatible bootstrap archive, prefix or SHA-256 manifest", "production_apk_ready": false}
