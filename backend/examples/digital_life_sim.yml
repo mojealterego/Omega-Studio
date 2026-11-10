@@ -1,0 +1,46 @@
+name: Digital-Life deterministic engineering simulation
+on: [push, pull_request, workflow_dispatch]
+env:
+  PROJECT: Digital-Life
+jobs:
+  language-matrix:
+    strategy:
+      matrix:
+        language: [python, rust, typescript]
+    steps:
+      - name: Local checkout
+        uses: actions/checkout@v4
+      - name: Generate synthetic validation evidence
+        id: evidence
+        run: |
+          mkdir -p evidence
+          python -c "from pathlib import Path; Path('evidence/${{ matrix.language }}.txt').write_text('validated:${{ matrix.language }}')"
+          echo 'token=${{ secrets.SIMULATED_TOKEN }}'
+          echo 'result=success' >> "$GITHUB_OUTPUT"
+          echo 'LANGUAGE=${{ matrix.language }}' >> "$GITHUB_ENV"
+      - name: Validate environment propagation
+        run: |
+          test "$LANGUAGE" = "${{ matrix.language }}"
+          test "${{ steps.evidence.outputs.result }}" = "success"
+      - name: Local dependency cache
+        uses: actions/cache@v4
+        with:
+          key: digital-life-${{ matrix.language }}
+          path: evidence
+      - name: Archive evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-${{ matrix.language }}
+          path: evidence/*.txt
+  aggregate:
+    needs: language-matrix
+    steps:
+      - name: Fetch Python evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: evidence-python
+          path: received
+      - name: Assert contents
+        run: |
+          test "$(cat received/evidence/python.txt)" = 'validated:python'
+          echo 'Digital-Life synthetic pipeline completed'

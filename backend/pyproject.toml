@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "omega-actions-local"
+version = "1.0.0"
+description = "Offline local GitHub-style CI/CD engine with explicit execution boundaries"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [{name = "OMEGA Actions"}]
+dependencies = ["PyYAML>=6.0,<7", "fastapi>=0.110,<1", "uvicorn>=0.27,<1", "cryptography>=42,<50", "argon2-cffi>=23,<26", "psutil>=5.9,<8", "httpx>=0.27,<1"]
+[project.scripts]
+omega-actions = "omega_actions.cli:main"
+omega-models = "omega_actions.model_cli:main"
+[tool.setuptools.package-data]
+omega_actions = ["static/*"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["omega_actions*"]

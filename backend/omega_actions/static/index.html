@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="omega-token" content="OMEGA_SESSION_TOKEN"><title>OMEGA Actions — Sovereign CI</title><link rel="stylesheet" href="/static/styles.css"></head>
+<body><div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">Ω</div><div><strong>OMEGA<span>ACTIONS</span></strong><small>LOCAL CI / SOVEREIGN ENGINE</small></div></div>
+    <div class="side-label">WORKSPACE</div>
+    <nav aria-label="Nawigacja">
+      <button class="nav active" data-view="dashboard"><span>◈</span> Przegląd</button>
+      <button class="nav" data-view="workflow"><span>⌘</span> Workflow Studio</button>
+      <button class="nav" data-view="history"><span>◷</span> Historia i artefakty</button>
+      <button class="nav" data-view="vault"><span>♢</span> Secrets Vault</button>
+    </nav>
+    <div class="side-bottom"><div class="status-led"></div><div><b>Local execution</b><small>Bez GitHub-hosted Actions</small></div></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div class="breadcrumb">ENGINE <span>/</span> <b id="breadcrumb">PRZEGLĄD</b></div><div class="top-actions"><span class="pill"><span class="dot"></span> LOCAL ONLY</span><span class="avatar">Ω</span></div></header>
+    <div class="content">
+      <section id="view-dashboard" class="view active">
+        <div class="hero"><div class="eyebrow">SOVEREIGN AUTOMATION PLATFORM <span>V1.0.0</span></div><h1>Twoje workflow.<br><em>Twoja infrastruktura.</em></h1><p>Niezależny silnik CI/CD działający na Twoim komputerze. GitHub pozostaje repozytorium kodu, a zadania wykonujesz lokalnie.</p><button class="primary" id="hero-create">Otwórz Workflow Studio <span>↗</span></button><div class="hero-decoration">Ω</div></div>
+        <div class="stats"><article class="stat"><span>URUCHOMIENIA</span><strong id="stat-runs">0</strong><small>Historia lokalna</small></article><article class="stat"><span>UKOŃCZONE</span><strong id="stat-success">0</strong><small>Zakończone sukcesem</small></article><article class="stat"><span>LOKALNE MINUTY</span><strong id="stat-minutes">0.0</strong><small>Czas pracy wykonawców</small></article><article class="stat"><span>HIPOTETYCZNY KOSZT HOSTED</span><strong id="stat-pln">0,00 zł</strong><small>Szacunek, nie rachunek</small></article></div>
+        <div class="panel"><div class="panel-header"><div><div class="eyebrow">LIVE ACTIVITY</div><h2>Ostatnie uruchomienia</h2></div><button class="secondary" id="refresh-dash">Odśwież ↻</button></div><div id="recent-runs" class="runs"><div class="empty">Brak uruchomień. Otwórz Workflow Studio.</div></div></div>
+      </section>
+      <section id="view-workflow" class="view">
+        <div class="section-title"><div><div class="eyebrow">CODE / NOCODE STUDIO</div><h1>Workflow Studio</h1><p>Wybierz lokalne repozytorium i uruchom workflow bez serwerów GitHub.</p></div></div>
+        <div class="panel studio"><div class="field"><label for="repo">KATALOG REPOZYTORIUM</label><div class="input-row"><input id="repo" placeholder="/home/user/Digital-Life" spellcheck="false"><button class="secondary" id="discover">Wykryj YAML</button></div></div>
+          <div class="field"><label for="workflow-select">WORKFLOW W REPOZYTORIUM</label><select id="workflow-select"><option value="">Wklej ścieżkę lub wybierz wykryty plik</option></select><input id="workflow-path" placeholder="/home/user/Digital-Life/.github/workflows/ci.yml" spellcheck="false"></div>
+          <div class="studio-tabs"><button class="studio-tab active" data-editor="code">Code / YAML</button><button class="studio-tab" data-editor="nocode">NoCode Builder</button></div>
+          <div id="editor-code" class="editor active"><div class="field"><label for="yaml-text">EDYTOR YAML (OPCJONALNIE ZAMIAST ŚCIEŻKI)</label><textarea id="yaml-text" rows="12" spellcheck="false" placeholder="name: Local CI&#10;on: [push]&#10;jobs:&#10;  test:&#10;    runs-on: ubuntu-latest&#10;    steps:&#10;      - run: echo 'Hello OMEGA'"></textarea></div><label class="file-label">Wczytaj plik .yml / .yaml <input id="yaml-upload" type="file" accept=".yml,.yaml,text/yaml"></label></div>
+          <div id="editor-nocode" class="editor"><div class="field"><label for="nc-name">NAZWA WORKFLOW</label><input id="nc-name" value="Local Build"></div><div class="field"><label for="nc-job">ID ZADANIA</label><input id="nc-job" value="build"></div><div class="field"><label for="nc-script">POLECENIA SHELL (KAŻDA LINIA JAKO KROK)</label><textarea id="nc-script" rows="6">python --version
+python -m unittest discover -s tests</textarea></div><button class="secondary" id="generate-yaml">Wygeneruj YAML ↗</button></div>
+          <div class="options"><label for="executor">WYKONAWCA</label><select id="executor"><option value="auto">Auto (Docker, jeśli job ma container; inaczej native)</option><option value="native">Native (wymaga świadomego włączenia)</option><option value="docker">Docker (lokalny obraz)</option></select><label for="event">ZDARZENIE</label><select id="event"><option value="workflow_dispatch">workflow_dispatch</option><option value="push">push</option><option value="pull_request">pull_request</option></select></div>
+          <div class="actions"><button class="secondary" id="validate">Zweryfikuj i pokaż DAG</button><button class="primary" id="start">▶ Run Workflow</button></div><div id="workflow-alert" role="status" class="alert hidden"></div>
+        </div>
+        <div class="panel"><div class="panel-header"><div><div class="eyebrow">EXECUTION GRAPH</div><h2>Graf zadań i macierz</h2></div><span class="hint">DAG / NEEDS / MATRIX</span></div><div id="dag" class="dag"><div class="empty">Załaduj workflow i wybierz „Zweryfikuj”.</div></div></div>
+        <div class="panel"><div class="panel-header"><div><div class="eyebrow">LIVE STREAM</div><h2>Logi wykonania</h2></div><div class="inline"><span id="run-badge" class="run-badge">BEZ ZADANIA</span><button id="cancel" class="danger" disabled>Cancel</button><button id="rerun" class="secondary" disabled>Re-run Workflow</button></div></div><pre id="logs" class="terminal" aria-live="polite">$ omega-actions ready
+$ awaiting workflow...</pre></div>
+      </section>
+      <section id="view-history" class="view"><div class="section-title"><div><div class="eyebrow">RUN REGISTRY</div><h1>Historia i artefakty</h1><p>Trwały rejestr zadań w lokalnej bazie SQLite/WAL.</p></div></div><div class="panel"><div class="panel-header"><h2>Uruchomienia</h2><button class="secondary" id="refresh-history">Odśwież ↻</button></div><div id="history-runs" class="runs"><div class="empty">Brak danych</div></div></div><div class="panel"><div class="panel-header"><h2>Artefakty wybranego uruchomienia</h2></div><div id="artifacts" class="runs"><div class="empty">Wybierz uruchomienie.</div></div></div></section>
+      <section id="view-vault" class="view"><div class="section-title"><div><div class="eyebrow">AES-256-GCM · ARGON2ID · HMAC-SHA3-256</div><h1>Secrets Vault</h1><p>Sekrety szyfrowane lokalnie. Hasło główne należy ustawić w środowisku serwera.</p></div></div><div class="panel"><div class="panel-header"><h2>Zapisz sekret</h2><span class="hint">Wartości nie są odczytywane przez panel</span></div><div class="field"><label for="secret-name">NAZWA</label><input id="secret-name" placeholder="API_TOKEN" autocomplete="off"></div><div class="field"><label for="secret-value">WARTOŚĆ</label><input id="secret-value" type="password" placeholder="••••••••••" autocomplete="new-password"></div><button class="primary" id="save-secret">Zapisz zaszyfrowany sekret</button><div id="vault-alert" class="alert hidden" role="status"></div></div><div class="panel"><div class="panel-header"><h2>Dostępne nazwy</h2><button class="secondary" id="refresh-secrets">Odśwież</button></div><div id="secrets-list" class="runs"><div class="empty">Brak danych</div></div></div></section>
+    </div>
+    <footer>OMEGA ACTIONS LOCAL ENGINE <span>© 2026 · OFFLINE-FIRST · USER-OWNED COMPUTE</span></footer>
+  </main>
+</div><script src="/static/app.js" defer></script></body></html>

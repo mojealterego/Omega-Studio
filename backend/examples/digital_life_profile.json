@@ -1,0 +1,12 @@
+{
+  "profile": "Digital-Life",
+  "repository_url": "https://github.com/mojealterego/Digital-Life",
+  "access": "READ_ONLY",
+  "workflow_glob": ".github/workflows/*.yml",
+  "local_repo_path": "~/Digital-Life",
+  "engine_state_path": "~/.omega-actions",
+  "native_execution_requires_explicit_opt_in": true,
+  "recommended_executor": "docker",
+  "external_github_actions_minutes": 0,
+  "notes": "The adapter never writes to the source repository. Workflow syntax may require migration for unsupported GitHub-hosted features."
+}

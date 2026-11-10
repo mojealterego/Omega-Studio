@@ -6,48 +6,15 @@
   "platform": "both",
   "theme": "obsidian-gold",
   "pages": [
-    {
-      "id": "home",
-      "title": "Strona główna",
-      "components": [
-        {
-          "id": "welcome",
-          "type": "heading",
-          "text": "Przyszłość należy do Ciebie"
-        },
-        {
-          "id": "intro",
-          "type": "paragraph",
-          "text": "Autorska aplikacja zaprojektowana w OMEGA Studio."
-        },
-        {
-          "id": "card",
-          "type": "card",
-          "text": "Własne środowisko. Pełna kontrola. Bez kosztów infrastruktury GitHub Actions."
-        },
-        {
-          "id": "open",
-          "type": "button",
-          "text": "Poznaj więcej",
-          "action": "page:about"
-        }
-      ]
-    },
-    {
-      "id": "about",
-      "title": "O aplikacji",
-      "components": [
-        {
-          "id": "heading",
-          "type": "heading",
-          "text": "OMEGA AppBuilder"
-        },
-        {
-          "id": "contact",
-          "type": "input",
-          "label": "Twój adres e-mail"
-        }
-      ]
-    }
+    {"id":"home","title":"Strona główna","components":[
+      {"id":"welcome","type":"heading","text":"Przyszłość należy do Ciebie"},
+      {"id":"intro","type":"paragraph","text":"Autorska aplikacja zaprojektowana w OMEGA Studio."},
+      {"id":"card","type":"card","text":"Własne środowisko. Pełna kontrola. Bez kosztów infrastruktury GitHub Actions."},
+      {"id":"open","type":"button","text":"Poznaj więcej","action":"page:about"}
+    ]},
+    {"id":"about","title":"O aplikacji","components":[
+      {"id":"heading","type":"heading","text":"OMEGA AppBuilder"},
+      {"id":"contact","type":"input","label":"Twój adres e-mail"}
+    ]}
   ]
 }

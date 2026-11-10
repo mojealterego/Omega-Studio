@@ -1,0 +1,197 @@
+{
+  "version": 1,
+  "providers": [
+    {
+      "id": "openai",
+      "title": "OpenAI",
+      "endpoint": "https://api.openai.com/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "OPENAI_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "anthropic",
+      "title": "Anthropic",
+      "endpoint": "https://api.anthropic.com/v1/messages",
+      "style": "anthropic",
+      "secret_name": "ANTHROPIC_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "gemini",
+      "title": "Google Gemini",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta/models",
+      "style": "gemini",
+      "secret_name": "GEMINI_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "github-models",
+      "title": "GitHub Models",
+      "endpoint": "https://models.github.ai/inference/chat/completions",
+      "style": "openai",
+      "secret_name": "GITHUB_TOKEN",
+      "remote": true
+    },
+    {
+      "id": "huggingface",
+      "title": "Hugging Face Inference",
+      "endpoint": "https://router.huggingface.co/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "HF_TOKEN",
+      "remote": true
+    },
+    {
+      "id": "openrouter",
+      "title": "OpenRouter",
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "OPENROUTER_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "groq",
+      "title": "Groq",
+      "endpoint": "https://api.groq.com/openai/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "GROQ_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "deepseek",
+      "title": "DeepSeek",
+      "endpoint": "https://api.deepseek.com/chat/completions",
+      "style": "openai",
+      "secret_name": "DEEPSEEK_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "mistral",
+      "title": "Mistral AI",
+      "endpoint": "https://api.mistral.ai/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "MISTRAL_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "xai",
+      "title": "xAI",
+      "endpoint": "https://api.x.ai/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "XAI_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "together",
+      "title": "Together AI",
+      "endpoint": "https://api.together.xyz/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "TOGETHER_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "fireworks",
+      "title": "Fireworks AI",
+      "endpoint": "https://api.fireworks.ai/inference/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "FIREWORKS_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "perplexity",
+      "title": "Perplexity",
+      "endpoint": "https://api.perplexity.ai/chat/completions",
+      "style": "openai",
+      "secret_name": "PERPLEXITY_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "cerebras",
+      "title": "Cerebras",
+      "endpoint": "https://api.cerebras.ai/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "CEREBRAS_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "sambanova",
+      "title": "SambaNova",
+      "endpoint": "https://api.sambanova.ai/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "SAMBANOVA_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "nvidia",
+      "title": "NVIDIA NIM",
+      "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "NVIDIA_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "novita",
+      "title": "Novita AI",
+      "endpoint": "https://api.novita.ai/v3/openai/chat/completions",
+      "style": "openai",
+      "secret_name": "NOVITA_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "hyperbolic",
+      "title": "Hyperbolic",
+      "endpoint": "https://api.hyperbolic.xyz/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "HYPERBOLIC_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "qwen",
+      "title": "Qwen DashScope International",
+      "endpoint": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "DASHSCOPE_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "siliconflow",
+      "title": "SiliconFlow",
+      "endpoint": "https://api.siliconflow.cn/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "SILICONFLOW_API_KEY",
+      "remote": true
+    },
+    {
+      "id": "ollama",
+      "title": "Ollama",
+      "endpoint": "http://127.0.0.1:11434/api/chat",
+      "style": "ollama",
+      "secret_name": "",
+      "remote": false
+    },
+    {
+      "id": "llama-cpp",
+      "title": "llama.cpp Server",
+      "endpoint": "http://127.0.0.1:8080/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "",
+      "remote": false
+    },
+    {
+      "id": "lm-studio",
+      "title": "LM Studio",
+      "endpoint": "http://127.0.0.1:1234/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "",
+      "remote": false
+    },
+    {
+      "id": "vllm",
+      "title": "vLLM",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "style": "openai",
+      "secret_name": "",
+      "remote": false
+    }
+  ]
+}
