@@ -28,8 +28,9 @@ def build(output: Path) -> dict:
             z.writestr(info,path.read_bytes())
     with zipfile.ZipFile(output) as z:
         if z.testzip() is not None:raise ValueError('CRC failure')
-    return {'files':len(files),'bytes':output.stat().st_size,
-            'sha256':hashlib.file_digest(output.open('rb'),'sha256').hexdigest()}
+    with output.open('rb') as stream:
+        digest=hashlib.file_digest(stream,'sha256').hexdigest()
+    return {'files':len(files),'bytes':output.stat().st_size,'sha256':digest}
 
 if __name__=='__main__':
     import json,sys
