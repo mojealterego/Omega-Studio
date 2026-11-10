@@ -28,7 +28,7 @@ class ProviderConfig:
             raise ProviderError('Invalid endpoint URL') from exc
         if parsed.scheme not in ("http", "https") or not parsed.hostname:
             raise ProviderError("Endpoint must use HTTP or HTTPS")
-        if parsed.username or parsed.password or parsed.fragment or port is None and parsed.scheme == 'http' and parsed.hostname not in ('localhost', '127.0.0.1', '::1'):
+        if parsed.username or parsed.password or parsed.fragment:
             raise ProviderError("Credentials and fragments are not allowed in endpoint URLs")
         if not self.model or len(self.model) > 256:
             raise ProviderError("Invalid model")
