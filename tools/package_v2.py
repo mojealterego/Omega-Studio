@@ -33,7 +33,8 @@ def package(output: Path, source_dir: Path) -> dict:
         path = source_dir/name
         if not path.is_file():
             raise ValueError('Required user-supplied source archive missing: '+name)
-        digest = hashlib.file_digest(path.open('rb'),'sha256').hexdigest()
+        with path.open('rb') as stream:
+            digest = hashlib.file_digest(stream,'sha256').hexdigest()
         if digest != by_name[name]['sha256']:
             raise ValueError('Source archive SHA-256 mismatch: '+name)
         records.append(('third_party/source_archives/'+name,path,zipfile.ZIP_STORED))
@@ -58,7 +59,8 @@ def package(output: Path, source_dir: Path) -> dict:
         if archive.testzip() is not None:
             raise ValueError('ZIP CRC verification failed')
         assert len(archive.namelist()) == len(records) + 1
-    digest = hashlib.file_digest(output.open('rb'),'sha256').hexdigest()
+    with output.open('rb') as stream:
+        digest = hashlib.file_digest(stream,'sha256').hexdigest()
     return {'file':str(output),'files':len(records)+1,'bytes':output.stat().st_size,
             'sha256':digest,'user_source_archives':len(ARCHIVES),'crc':'PASS'}
 
