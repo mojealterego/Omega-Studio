@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "name": "termux-app",
+      "repository": "https://github.com/termux/termux-app.git",
+      "commit": "8629e632fcb95da272221be327db653fb24befe9",
+      "license": "GPL-3.0-only",
+      "license_files": [
+        "LICENSE.md"
+      ],
+      "role": "android"
+    },
+    {
+      "name": "termux-packages",
+      "repository": "https://github.com/termux/termux-packages.git",
+      "commit": "733ca160a2150a22a81d2463d0f97c6332d6a530",
+      "license": "NOASSERTION",
+      "license_files": [
+        "LICENSE.md"
+      ],
+      "role": "toolchain"
+    },
+    {
+      "name": "code-server",
+      "repository": "https://github.com/coder/code-server.git",
+      "commit": "fcd14dceb7f60195d6925ec5d0716e08a6e04b22",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "role": "editor"
+    },
+    {
+      "name": "vscode-1.85.1",
+      "repository": "https://github.com/microsoft/vscode.git",
+      "commit": "0ee08df0cf4527e40edc9aa28f4b5bd38bbff2b2",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE.txt"
+      ],
+      "role": "editor"
+    },
+    {
+      "name": "llama.cpp",
+      "repository": "https://github.com/ggml-org/llama.cpp.git",
+      "commit": "17701e48d7fa3b7dac949cb9e5e6d241a382333c",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "role": "runtime"
+    },
+    {
+      "name": "git",
+      "repository": "https://github.com/git/git.git",
+      "commit": "fbd2d1e765da4d2931cadc4c62d3ca5d5b590e7e",
+      "license": "GPL-2.0-only",
+      "license_files": [
+        "COPYING"
+      ],
+      "role": "runtime"
+    },
+    {
+      "name": "cpython",
+      "repository": "https://github.com/python/cpython.git",
+      "commit": "4575fb91eab84ec8ee02b7cad7c38b309006a010",
+      "license": "PSF-2.0",
+      "license_files": [
+        "LICENSE"
+      ],
+      "role": "runtime"
+    },
+    {
+      "name": "nodejs",
+      "repository": "https://github.com/nodejs/node.git",
+      "commit": "29290738c1a75495d13697a0e8c9a615f79a2167",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "role": "runtime"
+    },
+    {
+      "name": "monaco-editor",
+      "repository": "https://github.com/microsoft/monaco-editor.git",
+      "commit": "5359a3330383137dfdf8897ba1d93d943fec4027",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE.txt"
+      ],
+      "role": "editor"
+    },
+    {
+      "name": "xterm.js",
+      "repository": "https://github.com/xtermjs/xterm.js.git",
+      "commit": "f70764dd3da05ebda0390605c6f9adbbea3f0e90",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "role": "terminal"
+    },
+    {
+      "name": "actions-runner",
+      "repository": "https://github.com/actions/runner.git",
+      "commit": "310a370bf3605f5b092f8af63b3126627de2a210",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "role": "ci"
+    },
+    {
+      "name": "huggingface-hub",
+      "repository": "https://github.com/huggingface/huggingface_hub.git",
+      "commit": "bd92c8cab8c7b52bb3c1f1d6502c303805336bae",
+      "license": "Apache-2.0",
+      "license_files": [
+        "LICENSE"
+      ],
+      "role": "integration"
+    },
+    {
+      "name": "github-cli",
+      "repository": "https://github.com/cli/cli.git",
+      "commit": "18138654f3598ebe031ad7b661c903188f0f1dc9",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "role": "integration"
+    },
+    {
+      "name": "tree-sitter",
+      "repository": "https://github.com/tree-sitter/tree-sitter.git",
+      "commit": "ad0aeb42d34c9f922990cc1159b41dea37d9c0e7",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "role": "editor"
+    }
+  ]
+}
