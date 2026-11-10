@@ -120,6 +120,25 @@ if(typeof document!=='undefined'){
     }catch(e){output.textContent='Błąd: '+String(e.message||e);}
   });
   $('#chatClear').addEventListener('click',()=>{$('#chatMessage').value='';$('#chatResult').textContent='Wyczyszczono.';});
+  function renderOpenSourceCatalog(){
+    const container=document.getElementById('ossSources');
+    if(!container)return;
+    container.replaceChildren();
+    const catalog=window.OMEGA_UPSTREAMS;
+    if(!catalog||catalog.schema_version!==1||!Array.isArray(catalog.sources)){
+      container.textContent='Katalog źródeł nie jest dostępny.';return;
+    }
+    for(const item of catalog.sources){
+      if(typeof item.name!=='string'||typeof item.repository!=='string'||
+         !/^https:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\.git$/.test(item.repository))continue;
+      const card=document.createElement('article');card.className='oss-source';
+      const name=document.createElement('strong');name.textContent=item.name;
+      const details=document.createElement('small');details.textContent=`${item.license} · ${item.role} · ${item.commit.slice(0,12)}`;
+      const link=document.createElement('a');link.href=item.repository;link.rel='noopener noreferrer';link.textContent='Otwórz oficjalne repozytorium';
+      card.append(name,details,link);container.append(card);
+    }
+  }
+  renderOpenSourceCatalog();
   const hasBridge=typeof omega!=='undefined'&&typeof omega.runAsync==='function';
   $('#status').textContent=hasBridge?'SHELL · ONLINE':'PODGLĄD UI';
   document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
