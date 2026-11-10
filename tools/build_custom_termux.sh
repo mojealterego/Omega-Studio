@@ -30,28 +30,28 @@ docker info >/dev/null 2>&1 || { echo 'BLOCKED: Docker daemon unavailable' >&2; 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK_DIR="$(cd "$WORK_DIR" && pwd)"
 EDITOR_PREFIX="$(cd "$EDITOR_PREFIX" && pwd)"
-cd "$ROOT"
 REPO="$WORK_DIR/termux-packages"
 [[ ! -e "$REPO" ]] || { echo 'BLOCKED: work directory already contains termux-packages' >&2; exit 2; }
-git clone --filter=blob:none --branch infra-improvs https://github.com/agnostic-apollo/termux-packages.git "$REPO"
+git clone --filter=blob:none https://github.com/termux/termux-packages.git "$REPO"
 git -C "$REPO" checkout --detach "$TERMUX_REF"
 ACTUAL="$(git -C "$REPO" rev-parse HEAD)"
 [[ "$ACTUAL" == "$TERMUX_REF" ]] || { echo 'BLOCKED: checkout ref mismatch' >&2; exit 2; }
 python3 - "$REPO/scripts/properties.sh" "$PACKAGE" <<'PY'
 import pathlib,sys
 p=pathlib.Path(sys.argv[1]);source=p.read_text()
-old='TERMUX_APP__PACKAGE_NAME="com.termux"'
-if source.count(old)!=1:raise SystemExit('BLOCKED: unexpected Termux properties format')
-p.write_text(source.replace(old,f'TERMUX_APP__PACKAGE_NAME="{sys.argv[2]}"'))
+import re
+pattern=re.compile(r'^(TERMUX_APP_PACKAGE|TERMUX_APP__PACKAGE_NAME)=(?:"com\.termux"|com\.termux)$',re.M)
+match=list(pattern.finditer(source))
+if len(match)!=1:raise SystemExit('BLOCKED: unexpected Termux properties format; inspect pinned revision')
+p.write_text(source[:match[0].start()]+match[0].group(1)+'="'+sys.argv[2]+'"'+source[match[0].end():])
 PY
-# Termux maintainer-recommended branch for custom-prefix bootstrap source builds.
 # Build dependencies from source; NEVER reuse official com.termux apt packages.
+# CLI options must match the pinned upstream revision; fail closed if they differ.
 (
   cd "$REPO"
   ./scripts/run-docker.sh ./scripts/build-bootstraps.sh \
     --architectures aarch64 \
-    --packages-post-additional python,git,llama-cpp,nodejs \
-    --no-build-unneeded-subpackages
+    --add python --add git --add llama-cpp --add nodejs
 )
 mapfile -t ARCHIVES < <(find "$REPO" -maxdepth 3 -type f -name 'bootstrap-aarch64*.zip' | sort)
 if (( ${#ARCHIVES[@]} != 1 )); then

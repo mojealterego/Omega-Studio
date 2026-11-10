@@ -38,13 +38,13 @@ def _valid_member(name: str) -> bool:
 
 
 def _read_elf(binary: bytes, name: str) -> None:
-    if len(binary) < 120 or binary[:4] != b'\x7fELF' or binary[4:7] != b'\x02\x01\x01':
+    if len(binary) < 4096 or binary[:4] != b'\x7fELF' or binary[4:7] != b'\x02\x01\x01':
         raise RuntimeBundleError('Invalid ELF64 little-endian program: ' + name)
     e_type, e_machine, e_version = struct.unpack_from('<HHI', binary, 16)
     if e_machine != 183:
         raise RuntimeBundleError('ELF is not AArch64: ' + name)
-    if e_type not in (2, 3) or e_version != 1:
-        raise RuntimeBundleError('Invalid ELF type or version: ' + name)
+    if e_type != 3 or e_version != 1:
+        raise RuntimeBundleError('Invalid ELF type: Android PIE ET_DYN required: ' + name)
     e_phoff = struct.unpack_from('<Q', binary, 32)[0]
     e_phentsize, e_phnum = struct.unpack_from('<HH', binary, 54)
     if e_phnum < 1 or e_phnum > 512 or e_phentsize < 56 or e_phoff < 64 or e_phoff + e_phnum * e_phentsize > len(binary):
@@ -52,17 +52,17 @@ def _read_elf(binary: bytes, name: str) -> None:
     load_found = False
     for i in range(e_phnum):
         off = e_phoff + i * e_phentsize
-        p_type, _flags, p_offset, _vaddr, _paddr, p_filesz, _memsz, _align = struct.unpack_from('<IIQQQQQQ', binary, off)
+        p_type, flags, p_offset, _vaddr, _paddr, p_filesz, _memsz, _align = struct.unpack_from('<IIQQQQQQ', binary, off)
         if p_offset > len(binary) or p_filesz > len(binary) - p_offset:
             raise RuntimeBundleError('Invalid ELF segment bounds: ' + name)
-        if p_type == 1:
+        if p_type == 1 and flags & 1:
             load_found = True
         if p_type == 3:
             interp = binary[p_offset:p_offset + p_filesz].rstrip(b'\0')
             if interp not in (b'/system/bin/linker64', b'/apex/com.android.runtime/bin/linker64'):
                 raise RuntimeBundleError('ELF interpreter is not Android linker64: ' + name)
     if not load_found:
-        raise RuntimeBundleError('ELF has no loadable segments: ' + name)
+        raise RuntimeBundleError('ELF has no executable PT_LOAD segments: ' + name)
 
 
 def _read_script(binary: bytes, name: str, prefix: str) -> None:

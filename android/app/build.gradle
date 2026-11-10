@@ -1,40 +1,7 @@
 plugins { id 'com.android.application' }
-
-def releaseKeystore = System.getenv('OMEGA_KEYSTORE')
-def releaseStorePassword = System.getenv('OMEGA_KEYSTORE_PASSWORD')
-def releaseKeyAlias = System.getenv('OMEGA_KEY_ALIAS')
-def releaseKeyPassword = System.getenv('OMEGA_KEY_PASSWORD')
-
 android {
-    namespace 'org.omega.actions'
-    compileSdk 35
-    defaultConfig {
-        applicationId 'org.omega.actions'
-        minSdk 26
-        // Deliberate sideload policy for app-private executable runtime.
-        // Compatibility with Android 17 MUST be verified on a real device.
-        targetSdk 28
-        versionCode 6
-        versionName '5.1.0-rc1'
-    }
-    signingConfigs {
-        release {
-            if (releaseKeystore && releaseStorePassword && releaseKeyAlias && releaseKeyPassword) {
-                storeFile file(releaseKeystore)
-                storePassword releaseStorePassword
-                keyAlias releaseKeyAlias
-                keyPassword releaseKeyPassword
-            }
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-        }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
+  namespace 'org.omega.actions'
+  compileSdk 35
+  defaultConfig { applicationId 'org.omega.actions'; minSdk 26; targetSdk 28; versionCode 6; versionName '1.3.0-dev' }
+  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }

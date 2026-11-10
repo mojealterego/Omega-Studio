@@ -17,10 +17,10 @@ PREFIX=f'/data/data/{PACKAGE}/files/usr'
 def elf(machine=183, interpreter=b'/system/bin/linker64\0'):
     """Synthetic ELF with a real program-header table (not an executable program)."""
     phnum=2 if interpreter else 1
-    data=bytearray(256)
+    data=bytearray(8192)
     data[:16]=b'\x7fELF'+bytes([2,1,1])+b'\0'*9
     struct.pack_into('<HHIQQQIHHHHHH',data,16,3,machine,1,0,64,0,0,64,56,phnum,0,0,0)
-    struct.pack_into('<IIQQQQQQ',data,64,1,5,0,0,0,256,256,4096)
+    struct.pack_into('<IIQQQQQQ',data,64,1,5,0,0,0,8192,8192,4096)
     if interpreter:
         struct.pack_into('<IIQQQQQQ',data,120,3,4,192,0,0,len(interpreter),len(interpreter),1)
         data[192:192+len(interpreter)]=interpreter
@@ -124,3 +124,21 @@ def test_prepare_release_does_not_publish_invalid_bundle(tmp_path):
     with pytest.raises(RuntimeBundleError):
         prepare_runtime_release(src/'bootstrap-aarch64-v8a.zip',src/'bootstrap-prefix.txt',target,PACKAGE)
     assert not target.exists()
+
+
+def test_rejects_small_fake_elf_with_valid_header(tmp_path):
+    p=payload();p['bin/git']=elf()[:256]
+    with pytest.raises(RuntimeBundleError,match='ELF'):
+        inspect_runtime_bundle(create(tmp_path,p),PACKAGE)
+
+
+def test_rejects_non_pie_arm64_binary(tmp_path):
+    p=payload();bad=bytearray(elf());struct.pack_into('<H',bad,16,2);p['bin/git']=bytes(bad)
+    with pytest.raises(RuntimeBundleError,match='PIE|type'):
+        inspect_runtime_bundle(create(tmp_path,p),PACKAGE)
+
+
+def test_rejects_non_executable_pt_load(tmp_path):
+    p=payload();bad=bytearray(elf());struct.pack_into('<I',bad,68,4);p['bin/git']=bytes(bad)
+    with pytest.raises(RuntimeBundleError,match='executable|loadable'):
+        inspect_runtime_bundle(create(tmp_path,p),PACKAGE)

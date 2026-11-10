@@ -20,14 +20,6 @@ public final class RuntimeHealth {
         return result;
     }
 
-    public static void assertHealthy(File filesDir) throws IOException {
-        Map<String,String> probes=probe(filesDir);
-        for(Map.Entry<String,String> item:probes.entrySet()) {
-            if(!item.getValue().startsWith("PASS:"))
-                throw new IOException("Runtime health failure for "+item.getKey()+": "+item.getValue());
-        }
-    }
-
     public static String version(File filesDir,String name) {
         if (!Arrays.asList(COMMANDS).contains(name)) return "BLOCKED: unrecognized command";
         File binary=new File(filesDir,"usr/bin/"+name);

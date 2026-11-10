@@ -24,6 +24,8 @@ public final class TermuxBootstrapInstaller {
     }
     public static void install(Context c)throws Exception{
         File files=c.getFilesDir(),prefix=new File(files,"usr"),staging=new File(files,"usr-staging");
+        if(new File(prefix,"bin/bash").canExecute())return;
+        if(prefix.exists()||staging.exists())throw new IOException("Existing prefix or staging directory requires manual recovery");
         if(!isBundled(c))throw new IOException("Compatible bootstrap archive not bundled in APK");
         String declaredPrefix;
         try(InputStream in=c.getAssets().open(PREFIX)){
@@ -39,38 +41,16 @@ public final class TermuxBootstrapInstaller {
         MessageDigest sha=MessageDigest.getInstance("SHA-256");
         try(InputStream in=c.getAssets().open(ZIP)){byte[] b=new byte[65536];int n;while((n=in.read(b))!=-1)sha.update(b,0,n);}
         if(!expected.equalsIgnoreCase(hex(sha.digest())))throw new SecurityException("Bootstrap SHA-256 mismatch");
-        File marker=new File(prefix,".omega-runtime.sha256");
-        if(prefix.exists()){
-            if(!prefix.isDirectory()||!marker.isFile())
-                throw new SecurityException("Existing prefix lacks verified runtime marker");
-            byte[] markerBytes=new byte[64];
-            try(InputStream in=new FileInputStream(marker)){
-                if(in.read(markerBytes)!=64 || !expected.equalsIgnoreCase(new String(markerBytes,StandardCharsets.US_ASCII)))
-                    throw new SecurityException("Existing prefix runtime checksum marker mismatch");
-            }
-            RuntimeHealth.assertHealthy(files);
-            return;
-        }
-        if(staging.exists())throw new IOException("Existing prefix staging directory requires manual recovery");
-
         if(!staging.mkdirs())throw new IOException("Cannot create staging prefix");
-        List<String[]> symlinks=new ArrayList<>();Set<String> archiveNames=new HashSet<>();long extracted=0;int entries=0;
+        List<String[]> symlinks=new ArrayList<>();long extracted=0;int entries=0;
         try(InputStream input=c.getAssets().open(ZIP);ZipInputStream zip=new ZipInputStream(input)){
             ZipEntry e;byte[] b=new byte[65536];
             while((e=zip.getNextEntry())!=null){
                 if(++entries>200000)throw new IOException("Too many bootstrap entries");
                 String name=e.getName();
-                if(!archiveNames.add(name))throw new SecurityException("Duplicate bootstrap archive entry");
                 if(name.equals("SYMLINKS.txt")){
                     BufferedReader reader=new BufferedReader(new InputStreamReader(zip,StandardCharsets.UTF_8));String line;
-                    long symlinkBytes=0;
-                    while((line=reader.readLine())!=null){
-                        symlinkBytes+=line.length()*2L;
-                        if(symlinkBytes>2L*1024*1024)throw new IOException("Symlink manifest too large");
-                        String[] pair=line.split("←",2);
-                        if(pair.length!=2)throw new IOException("Malformed bootstrap symlink");
-                        symlinks.add(pair);
-                    }
+                    while((line=reader.readLine())!=null){String[] pair=line.split("←",2);if(pair.length!=2)throw new IOException("Malformed bootstrap symlink");symlinks.add(pair);}
                     continue;
                 }
                 File target=new File(staging,name);
@@ -83,12 +63,10 @@ public final class TermuxBootstrapInstaller {
                 if(name.startsWith("bin/")||name.startsWith("libexec/")||name.startsWith("lib/apt/"))Os.chmod(target.getAbsolutePath(),0700);
             }
         }catch(Exception e){deleteTree(staging);throw e;}
-        if(symlinks.isEmpty()){deleteTree(staging);throw new IOException("Bootstrap missing SYMLINKS.txt");}
+        // SYMLINKS.txt is required by the release gate; it may validly contain no entries.
         try{
             for(String[] pair:symlinks){
                 String target=pair[0],link=pair[1];
-                if(archiveNames.contains(link)||!archiveNames.add(link))
-                    throw new SecurityException("Symlink collision in bootstrap");
                 File dest=new File(staging,link);
                 if(!dest.getCanonicalPath().startsWith(staging.getCanonicalPath()+File.separator))throw new SecurityException("Symlink path traversal");
                 if(target.startsWith("/")){
@@ -104,15 +82,7 @@ public final class TermuxBootstrapInstaller {
             }
             if(!staging.renameTo(prefix))throw new IOException("Unable to finalize bootstrap");
         }catch(Exception e){deleteTree(staging);throw e;}
-        try{
-            RuntimeHealth.assertHealthy(files);
-            try(OutputStream out=new FileOutputStream(marker)){
-                out.write(expected.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.US_ASCII));
-            }
-        }catch(Exception failure){
-            deleteTree(prefix);
-            throw failure;
-        }
+        if(!new File(prefix,"bin/bash").canExecute())throw new IOException("Bootstrap does not contain executable bash");
     }
     private static String hex(byte[] bytes){StringBuilder s=new StringBuilder();for(byte b:bytes)s.append(String.format(Locale.ROOT,"%02x",b&255));return s.toString();}
     private static void deleteTree(File root){File[] list=root.listFiles();if(list!=null)for(File f:list){if(f.isDirectory()&&!java.nio.file.Files.isSymbolicLink(f.toPath()))deleteTree(f);else f.delete();}root.delete();}

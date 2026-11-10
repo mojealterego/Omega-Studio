@@ -73,7 +73,7 @@ public final class NativeBridge {
         if(shell.equals(bin("bash").getAbsolutePath())){
             Map<String,String> env=builder.environment();env.put("PREFIX",prefix().getAbsolutePath());
             env.put("HOME",new File(activity.getFilesDir(),"home").getAbsolutePath());
-            env.put("PATH",new File(prefix(),"bin").getAbsolutePath()+":/system/bin");
+            RuntimeEnvironment.configure(env,activity.getFilesDir());
         }
         Process p=builder.start();
         StringBuilder output=new StringBuilder();
@@ -166,7 +166,12 @@ public final class NativeBridge {
     @JavascriptInterface public void installBootstrap(String id){task(id,()->{
         TermuxBootstrapInstaller.install(activity);
         File backend=RuntimeAssetsInstaller.install(activity);
-        return new JSONObject().put("installed",true).put("backend",backend.getAbsolutePath()).toString();
+        Map<String,String> checks=RuntimeHealth.probe(activity.getFilesDir());
+        for(Map.Entry<String,String> entry:checks.entrySet())
+            if(!entry.getValue().startsWith("PASS:"))
+                throw new IOException("Runtime verification failed: "+entry.getKey()+" ("+entry.getValue()+")");
+        return new JSONObject().put("installed",true).put("backend",backend.getAbsolutePath())
+            .put("binary_probes",new JSONObject(checks)).toString();
     });}
     @JavascriptInterface public void runWorkflow(String name,boolean confirmUnsafe,String id){task(id,()->{
         if(!confirmUnsafe)throw new SecurityException("Wykonywanie kodu CI wymaga jawnej zgody");
@@ -184,8 +189,8 @@ public final class NativeBridge {
         Map<String,String> env=pb.environment();
         env.put("PREFIX",prefix().getAbsolutePath());
         env.put("HOME",new File(activity.getFilesDir(),"home").getAbsolutePath());
+        RuntimeEnvironment.configure(env,activity.getFilesDir());
         env.put("PYTHONPATH",backend.getAbsolutePath());
-        env.put("PATH",new File(prefix(),"bin").getAbsolutePath()+":/system/bin");
         env.put("OMEGA_ACTIONS_HOME",new File(activity.getFilesDir(),"omega-state").getAbsolutePath());
         Process process=pb.start();StringBuilder output=new StringBuilder();
         Thread drain=new Thread(()->{try(InputStream in=process.getInputStream()){
@@ -272,7 +277,7 @@ public final class NativeBridge {
             "-n",String.valueOf(tokens),"-p",prompt);
         ProcessBuilder builder=new ProcessBuilder(args);builder.directory(activity.getFilesDir());builder.redirectErrorStream(true);
         Map<String,String> env=builder.environment();env.put("PREFIX",prefix().getAbsolutePath());env.put("HOME",new File(activity.getFilesDir(),"home").getAbsolutePath());
-        env.put("PATH",new File(prefix(),"bin").getAbsolutePath()+":/system/bin");
+        RuntimeEnvironment.configure(env,activity.getFilesDir());
         Process process=builder.start();StringBuilder output=new StringBuilder();
         Thread drain=new Thread(()->{try(InputStream in=process.getInputStream()){
             byte[] b=new byte[4096];int n;while((n=in.read(b))!=-1){if(output.length()<1024*1024)output.append(new String(b,0,Math.min(n,1024*1024-output.length()),StandardCharsets.UTF_8));}

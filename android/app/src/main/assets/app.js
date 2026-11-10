@@ -160,6 +160,19 @@ if(typeof document!=='undefined'){
       else out.textContent+=String(omega.run(cmd)).slice(0,30000);
     }catch(e){out.textContent+='Błąd: '+String(e.message||e);}
   });
+  // The full APK installs its verified, bundled runtime on first launch.
+  // Preview APKs without a bootstrap never attempt to install or claim readiness.
+  if(hasBridge&&typeof omega.capabilities==='function'){
+    try{
+      const c=JSON.parse(omega.capabilities());
+      if(c.bootstrap_bundled&&!c.termux_bootstrap){
+        $('#runtimeStatus').textContent='Automatyczna instalacja natywnego środowiska ARM64…';
+        nativeCall('installBootstrap').then(r=>{
+          $('#runtimeStatus').textContent='Zainstalowano: '+JSON.stringify(r);
+        }).catch(e=>{$('#runtimeStatus').textContent='Instalacja zablokowana: '+String(e.message||e);});
+      }
+    }catch(_){/* native capability check failed closed */}
+  }
   $('#installRuntime').addEventListener('click',async()=>{
     $('#runtimeStatus').textContent='Weryfikacja i instalacja zasobów…';
     try{$('#runtimeStatus').textContent=JSON.stringify(await nativeCall('installBootstrap'));}

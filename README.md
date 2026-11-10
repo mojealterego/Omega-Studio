@@ -1,60 +1,30 @@
-# OMEGA Studio v1.3 — stan: SOURCE + RUNTIME SUPPLY CHAIN, nie produkcyjny APK
+# OMEGA Studio 1.3.0 — Sovereign Android IDE / AppBuilder
 
-**Wymagane binaria ARM64 i test Android 17 nie są jeszcze dostępne.** Release APK pozostaje zablokowany przez bramkę `tools/verify_runtime_bundle.py`. Dokumentacja: `docs/REAL_RUNTIME_BUILD_v13.md`, `docs/RELEASE_STATUS_v13.md`.
+Polskojęzyczne środowisko Android-first z interfejsem **Obsidian & 24K Gold**, lokalnym AppBuilderem Code/NoCode, backendem Python CI/CD, GitHub, czatem AI, integracją GGUF i natywnym adapterem do code-server.
 
-# OMEGA Studio — Sovereign AppBuilder / Local CI v1.2.0
+## Dostarczony kod
 
-**Polski, lokalny edytor Code/NoCode** z autorskim AppBuilderem dla statycznych aplikacji webowych i aplikacji natywnych Android. Zawiera ponadto istniejący backend Python CI/CD, moduły GitHub, GGUF, Hugging Face, czat wielomodelowy i katalog dostawców API.
+- AppBuilder: edytor stron i komponentów, generowanie projektów Web HTML/CSS/JS oraz natywnych źródeł Android Java.
+- Edytor kodu i terminal z asynchronicznym mostem Android; lokalny silnik CI/CD Python i obsługa GGUF.
+- Integracja VS Code przez `code-server`/Node: proces lokalny, losowe hasło, loopback, izolowany WebView bez mostu JavaScript.
+- Menedżer binariów: rygorystyczna weryfikacja SHA-256, ELF64/ARM64/Android linker, symlinków, prefiksu pakietu i kompletności zasobów edytora.
+- Automatyczna instalacja zasobów na pierwszym uruchomieniu **wyłącznie jeśli kompletny bootstrap jest w APK**.
+- Bezpieczny release gate: nie publikuje nazwy `DEVICE_VERIFIED` bez wykonania sześciu binariów na fizycznym urządzeniu.
+- Katalog 24 dostawców API, klucze w Android Keystore w kodzie natywnym; opłaty zewnętrznych modeli wymagają jawnej zgody.
 
-## Co działa w dostarczonym kodzie
-
-- Wizualny AppBuilder: strony, komponenty, edycja treści, nawigacja, trzy motywy, podgląd w izolowanej ramce, import/eksport JSON.
-- Generator **prawdziwych źródeł natywnej aplikacji Android** (Java `Activity`, `TextView`, `Button`, `EditText`) oraz statycznej aplikacji webowej (HTML/CSS/JS) w archiwum ZIP.
-- Deterministyczny generator Python z kontrolą schematu, ochroną przed XSS i wstrzykiwaniem kodu Java, sumami SHA-256 i CLI.
-- Offline APK **podglądowy** z interfejsem AppBuilder oraz systemową powłoką Android; nie korzysta z adresu `127.0.0.1:8765`.
-- Backend Python z istniejącym silnikiem CI/CD, API, narzędziami GitHub, GGUF i Hugging Face, uruchamiany osobno na maszynie z Pythonem.
-
-## Uruchomienie AppBuildera
-
-### Z poziomu przeglądarki lub APK podglądowego
-
-Otwórz `android/app/src/main/assets/index.html` w przeglądarce lub zainstaluj `dist/OMEGA_STUDIO_APPBUILDER_UI_PREVIEW_v1.2.0.apk`. Zakładka **AppBuilder** zawiera edytor NoCode i przycisk **Eksportuj projekt ZIP**. W systemie Android zachowanie pobierania ZIP zależy od obsługi `blob:` przez WebView; eksport w Pythonie działa niezależnie.
-
-### CLI — eksport deterministyczny
+## Weryfikacja
 
 ```bash
-python -m builder.omega_builder validate builder/examples/premium-app.json
-python -m builder.omega_builder build builder/examples/premium-app.json --output omega-app.zip
+PYTHONPATH=.:backend python3 -m pytest -q tests backend/tests
+node --test tests/test_ui.mjs tests/test_builder.mjs
+python3 tools/verify_android_sources.py
+bash tools/build_full_apk.sh
 ```
 
-Wygenerowany projekt webowy nie wymaga żadnej usługi płatnej. Wygenerowany projekt Android wymaga Gradle, Android SDK 35 i kompilacji na odpowiednim środowisku.
+Ostatnie polecenie jest **celowo blokowane**, dopóki nie ma realnego bootstrap i narzędzi Android. Nie wykonuje fikcyjnego builda.
 
-## CI/CD i backend
+## Ukończenie binarnego APK
 
-```bash
-cd backend
-python -m pip install -e .
-python -m omega_actions serve --host 127.0.0.1 --port 8765
-```
+Zobacz [docs/NATIVE_RUNTIME_BUILD.md](docs/NATIVE_RUNTIME_BUILD.md) i [docs/VSCODE_AND_RUNTIME.md](docs/VSCODE_AND_RUNTIME.md).
 
-Powyższy backend **nie uruchamia się automatycznie w APK podglądowym**. Do wykonania lokalnych workflowów nie trzeba uruchamiać płatnych GitHub-hosted Actions, lecz niektóre workflowy wymagają zewnętrznych narzędzi i środowisk.
-
-## Granica binarnej gotowości Android
-
-APK podglądowy **nie zawiera** działających binariów Termux, Python, Git ani llama.cpp. W tym środowisku nie ma Android SDK/Gradle ani zgodnego pakietu bootstrap dla `org.omega.actions`; nie wykonano testu instalacji na Samsungu S24 Ultra. Skrypt `tools/build_android_release.sh` wymusza weryfikację binariów przed próbą wydania pełnej aplikacji. Symulacja nie zastępuje uruchomienia binariów ARM64 na telefonie.
-
-## Bezpieczeństwo
-
-- Brak automatycznych wywołań płatnych API.
-- Import projektów ograniczony rozmiarem i schematem; nawigacja tylko do lokalnych stron.
-- Podgląd `iframe` z `sandbox` bez uprawnień.
-- Generowany web z CSP, tekst użytkownika kodowany HTML; natywny Java z tekstami Base64.
-- Wersja podglądowa nie stanowi bezpiecznego środowiska do wykonywania niezaufanych workflowów CI.
-- Klucze API przechowywane przez Android Keystore są zaimplementowane w źródłach natywnych, **nie w APK podglądowym**.
-
-## Repozytoria
-
-Repozytorium projektu: `https://github.com/mojealterego/Omega-Studio`.
-Repozytorium Digital-Life jest używane wyłącznie jako kontekst architektoniczny i nie zostało zmodyfikowane. Żadnych GitHub-hosted Actions nie uruchomiono.
-
-Zobacz `docs/APPBUILDER.md`, `docs/RELEASE_STATUS_v12.md`, `PRODUCTION_READINESS_REPORT.md` i `validation/`.
+**Aktualny stan: kod źródłowy i testy integracji; NIE ukończony samodzielny APK.** Nie ma zgodnego bootstrap Termux/Python/Git/llama.cpp/Node/code-server, nie było testu na fizycznym Samsungu. Wcześniejszy APK v1.2.0 to wyłącznie podgląd UI. Żadnych płatnych GitHub Actions nie uruchomiono.

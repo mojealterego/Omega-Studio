@@ -1,0 +1,49 @@
+{
+  "browser_e2e": {
+    "appbuilder": "PASS",
+    "real_code_server": "NOT_TESTED",
+    "vscode_ui": "PASS"
+  },
+  "host_tools": {
+    "aapt": false,
+    "aapt2": false,
+    "adb": false,
+    "apksigner": false,
+    "gradle": false,
+    "javac": true,
+    "node": true,
+    "python3": true
+  },
+  "java_android_api_surface": {
+    "result": "PASS",
+    "sdk": "NOT_USED",
+    "sources": 12
+  },
+  "java_host_process_tests": {
+    "not_android_runtime": true,
+    "passed": 2,
+    "result": "PASS"
+  },
+  "javascript_tests": {
+    "exit_code": 0,
+    "log": "validation/V13_NODE.log",
+    "passed": 15
+  },
+  "network": "CONTAINER_DNS_UNAVAILABLE",
+  "physical_android_device_test": "NOT_RUN",
+  "production_apk": "NOT_BUILT",
+  "python_tests": {
+    "exit_code": 0,
+    "log": "validation/V13_PYTEST.log",
+    "passed": 144,
+    "subtests": 4,
+    "warnings": 1
+  },
+  "release_gate": {
+    "exit_code": 2,
+    "reason": "Missing compatible ARM64 bootstrap archive, package-specific prefix and SHA256 manifest",
+    "status": "BLOCKED"
+  },
+  "repository": "https://github.com/mojealterego/Omega-Studio",
+  "version": "1.3.0-source"
+}
