@@ -8,10 +8,10 @@ Data: 2026-11-10. Gałąź: main. Repozytorium Digital-Life pozostaje bez zmian.
 
 ## Lokalna weryfikacja
 
-- Python: 190 testów PASS, 4 podtesty PASS (przed dołączeniem testów bramki).
+- Python: 197 testów PASS, 4 podtesty PASS.
 - JavaScript: 15 PASS.
 - Nowy browser IDE: testy API 3 PASS, Chromium 7 kontroli PASS (mock transportu w przeglądarce).
-- Testy bramki APK: 3 PASS.
+- Testy bramki APK: 3 PASS.\n- CLI serwera: 2 PASS.\n- Pieczęć AST i streamer: 2 PASS.
 - Wydanie APK z Termux/Python/Git/llama.cpp/code-server: brak realnego pakietu binariów i testu urządzenia.
 
 Kod jest rozwijany w izolacji i dystrybuowany również jako ZIP. Repozytorium Omega-Studio otrzymuje kod i dokumentację; nie uruchamia to żadnego workflow GitHub-hosted Actions. Weryfikacja struktury nie zastępuje rzeczywistego uruchomienia na Androidzie.
