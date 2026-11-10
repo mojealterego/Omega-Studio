@@ -33,6 +33,26 @@ class MCPRegistryTests(unittest.TestCase):
             with self.subTest(url=url), self.assertRaises(MCPRegistryError):
                 MCPServer("remote", "streamable-http", url=url)
 
+    def test_private_network_endpoints_rejected(self):
+        blocked = (
+            "https://localhost/mcp",
+            "https://127.0.0.1/mcp",
+            "https://10.0.0.2/mcp",
+            "https://192.168.1.1/mcp",
+            "https://169.254.169.254/latest/meta-data/",
+            "https://[::1]/mcp",
+            "https://example.local/mcp",
+            "https://example.com:8443/mcp",
+            "https://example.com:bad/mcp",
+        )
+        for url in blocked:
+            with self.subTest(url=url), self.assertRaises(MCPRegistryError):
+                MCPServer("remote", "streamable-http", url=url)
+
+    def test_public_https_endpoint_accepted(self):
+        server = MCPServer("remote", "streamable-http", url="https://mcp.example.com:443/mcp")
+        self.assertEqual(server.transport, "streamable-http")
+
     def test_invalid_command_rejected(self):
         with self.assertRaises(MCPRegistryError):
             MCPServer("bad", "stdio", ("python", "bad\x00arg"))
