@@ -1,0 +1,10 @@
+import {strict as assert} from 'node:assert';
+import {test} from 'node:test';
+import {UNREAL_INTEGRATIONS,unrealIntegration,validateUnrealIntegrations} from '../../src/integrations/UnrealIntegrationRegistry';
+test('ten supplied Unreal repositories are registered',()=>{assert.equal(UNREAL_INTEGRATIONS.length,10);assert.equal(new Set(UNREAL_INTEGRATIONS.map(x=>x.id)).size,10);});
+test('all entries are fail closed',()=>{assert.doesNotThrow(validateUnrealIntegrations);for(const item of UNREAL_INTEGRATIONS){assert.equal(item.enabled,false);assert.equal(item.endpoint,null);assert.deepEqual(item.approvedTools,[]);}});
+test('distinguishes host, engine plugin, and RQL extensions',()=>{assert.equal(unrealIntegration('GameDev-MCP-Server')?.kind,'shared-mcp-host');assert.equal(unrealIntegration('Unreal-MCP')?.kind,'engine-plugin');assert.equal(unrealIntegration('Unreal-AI-PCG')?.kind,'rql-extension');});
+test('extension template is not treated as server',()=>{assert.equal(unrealIntegration('Unreal-AI-Template')?.kind,'extension-template');});
+test('Niagara fork requires review',()=>{assert.match(unrealIntegration('Unreal-AI-Niagara')?.notes??'',/inspect before enabling/);});
+test('source URLs are owner scoped',()=>{for(const item of UNREAL_INTEGRATIONS)assert.equal(item.source,'https://github.com/mojealterego/'+item.id);});
+test('unknown integration is absent',()=>{assert.equal(unrealIntegration('missing'),undefined);});
