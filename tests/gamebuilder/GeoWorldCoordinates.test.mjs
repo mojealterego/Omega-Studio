@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import {strict as assert} from 'node:assert';
+import {createGeoWorld} from '../../src/gamebuilder/GeoWorldCoordinates.mjs';
+test('origin maps to zero',()=>{const g=createGeoWorld({originLat:49.75,originLon:18.63});assert.deepEqual(g.toLocal({lat:49.75,lon:18.63}),{x:0,y:0,z:0});});
+test('coordinate roundtrip near origin',()=>{const g=createGeoWorld({originLat:49.75,originLon:18.63});const p={lat:49.752,lon:18.632,alt:321};const q=g.toGeo(g.toLocal(p));assert.ok(Math.abs(q.lat-p.lat)<1e-9);assert.ok(Math.abs(q.lon-p.lon)<1e-9);assert.equal(q.alt,p.alt);});
+test('negative coordinates map to negative sectors',()=>{const g=createGeoWorld({originLat:50,originLon:19});assert.equal(g.sector({x:-1,z:-257}).id,'-1:-2');});
+test('bounding sector selection deterministic',()=>{const g=createGeoWorld({originLat:50,originLon:19});assert.deepEqual(g.sectorsForBounds({minX:0,minZ:0,maxX:257,maxZ:1}).map(s=>s.id),['0:0','1:0']);});
+test('huge region fails closed',()=>{const g=createGeoWorld({originLat:50,originLon:19});assert.throws(()=>g.sectorsForBounds({minX:0,minZ:0,maxX:1000000,maxZ:1000000}),/SECTOR_LIMIT_EXCEEDED/);});
+test('invalid geographic coordinates rejected',()=>{assert.throws(()=>createGeoWorld({originLat:91,originLon:19}),/INVALID_COORDINATE/);});
+test('distant coordinates rejected for local approximation',()=>{const g=createGeoWorld({originLat:50,originLon:19});assert.throws(()=>g.toLocal({lat:52,lon:19}),/OUTSIDE_LOCAL_PROJECTION/);});
+test('invalid sector size rejected',()=>{assert.throws(()=>createGeoWorld({originLat:50,originLon:19,sectorSize:0}),/INVALID_SECTOR_SIZE/);});
