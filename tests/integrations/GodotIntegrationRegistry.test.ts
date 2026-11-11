@@ -1,0 +1,11 @@
+import {strict as assert} from 'node:assert';
+import {test} from 'node:test';
+import {GODOT_INTEGRATIONS,godotIntegration,compatibleOrchestrator,validateGodotIntegrations} from '../../src/integrations/GodotIntegrationRegistry';
+test('registers two supplied Godot repositories',()=>{assert.equal(GODOT_INTEGRATIONS.length,2);assert.doesNotThrow(validateGodotIntegrations);});
+test('integration defaults fail closed',()=>{for(const x of GODOT_INTEGRATIONS){assert.equal(x.enabled,false);assert.equal(x.endpoint,null);assert.deepEqual(x.approvedTools,[]);}});
+test('visual scripting is not confused with MCP server',()=>{assert.equal(godotIntegration('godot-orchestrator')?.kind,'visual-scripting-gdextension');assert.equal(godotIntegration('Godot-AI-Tools-Template')?.kind,'mcp-tool-template');});
+test('maps Godot 4.8 to Orchestrator 2.6',()=>assert.equal(compatibleOrchestrator('4.8.0'),'2.6.x'));
+test('maps Godot 4.7 to Orchestrator 2.5',()=>assert.equal(compatibleOrchestrator('4.7.1'),'2.5.x'));
+test('maps Godot 4.6 to Orchestrator 2.4',()=>assert.equal(compatibleOrchestrator('4.6.3'),'2.4.x'));
+test('rejects unknown and unsupported versions',()=>{assert.equal(compatibleOrchestrator('4.5.0'),undefined);assert.equal(compatibleOrchestrator('4.9.0'),undefined);assert.equal(compatibleOrchestrator('nonsense'),undefined);});
+test('unknown integration is not silently enabled',()=>assert.equal(godotIntegration('missing'),undefined));
