@@ -32,6 +32,9 @@ class ProviderConfig:
             raise ProviderError("Endpoint must use HTTP or HTTPS")
         if parsed.username or parsed.password or parsed.fragment:
             raise ProviderError("Credentials and fragments are not allowed in endpoint URLs")
+        if (not isinstance(self.api_key, str) or
+                any(ord(char) < 32 or ord(char) == 127 for char in self.api_key)):
+            raise ProviderError("Invalid API key header value")
         if not isinstance(self.model, str) or not self.model.strip() or len(self.model) > 256:
             raise ProviderError("Invalid model")
         if (not isinstance(self.timeout_seconds, (int, float)) or
