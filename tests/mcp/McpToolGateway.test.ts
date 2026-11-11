@@ -1,0 +1,17 @@
+import {strict as assert} from 'node:assert';
+import {test} from 'node:test';
+import {McpToolGateway,type Transport,type ToolPolicy} from '../../src/mcp/McpToolGateway';
+const policy:ToolPolicy={serverId:'unity',tools:['scene.upsert'],maxRequestBytes:2048,maxResponseBytes:2048,timeoutMs:100};
+const echo:Transport={async exchange(_server,request){const q=JSON.parse(request);return JSON.stringify({jsonrpc:'2.0',id:q.id,result:{content:[{type:'text',text:q.params.name}]}});}};
+test('authorized call correlates JSON-RPC response',async()=>{const r=await new McpToolGateway(echo,[policy]).call('unity','scene.upsert',{name:'Cube'});assert.equal((r.content as any[])[0].text,'scene.upsert');});
+test('rejects unauthorized tool',async()=>{await assert.rejects(new McpToolGateway(echo,[policy]).call('unity','delete.all',{}),{code:'TOOL_NOT_ALLOWED'});});
+test('rejects unknown server',async()=>{await assert.rejects(new McpToolGateway(echo,[policy]).call('other','scene.upsert',{}),{code:'TOOL_NOT_ALLOWED'});});
+test('rejects nonfinite arguments',async()=>{await assert.rejects(new McpToolGateway(echo,[policy]).call('unity','scene.upsert',{x:Infinity}),{code:'INVALID_JSON_VALUE'});});
+test('rejects prototype pollution',async()=>{await assert.rejects(new McpToolGateway(echo,[policy]).call('unity','scene.upsert',JSON.parse('{"__proto__":1}')),{code:'UNSAFE_JSON_KEY'});});
+test('rejects response ID mismatch',async()=>{const t:Transport={async exchange(){return JSON.stringify({jsonrpc:'2.0',id:'wrong',result:{}})}};await assert.rejects(new McpToolGateway(t,[policy]).call('unity','scene.upsert',{}),{code:'RESPONSE_ID_MISMATCH'});});
+test('rejects remote errors',async()=>{const t:Transport={async exchange(_s,r){return JSON.stringify({jsonrpc:'2.0',id:JSON.parse(r).id,error:{code:-32000,message:'denied'}})}};await assert.rejects(new McpToolGateway(t,[policy]).call('unity','scene.upsert',{}),{code:'REMOTE_TOOL_ERROR'});});
+test('rejects oversized request',async()=>{await assert.rejects(new McpToolGateway(echo,[policy]).call('unity','scene.upsert',{data:'x'.repeat(4000)}),{code:'REQUEST_TOO_LARGE'});});
+test('rejects oversized response',async()=>{const t:Transport={async exchange(){return 'x'.repeat(4000)}};await assert.rejects(new McpToolGateway(t,[policy]).call('unity','scene.upsert',{}),{code:'RESPONSE_TOO_LARGE'});});
+test('rejects duplicate server policy',()=>{assert.throws(()=>new McpToolGateway(echo,[policy,policy]),{code:'INVALID_POLICY'});});
+test('rejects pre-cancelled signal',async()=>{const c=new AbortController();c.abort();await assert.rejects(new McpToolGateway(echo,[policy]).call('unity','scene.upsert',{},c.signal),{code:'CANCELLED'});});
+test('timeout aborts transport',async()=>{const t:Transport={exchange(_s,_r,signal){return new Promise((_resolve,reject)=>signal.addEventListener('abort',()=>reject(new Error('aborted')),{once:true}));}};await assert.rejects(new McpToolGateway(t,[{...policy,timeoutMs:5}]).call('unity','scene.upsert',{}),{code:'TIMEOUT'});});
