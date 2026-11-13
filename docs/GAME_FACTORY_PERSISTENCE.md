@@ -32,9 +32,10 @@ Run the standalone regression suite without installing dependencies:
 
 ```sh
 node --test tests/gamebuilder/FileFactoryStore.test.mjs
+node --experimental-transform-types --test tests/gamebuilder/FactoryPipelinePersistence.test.mjs
 ```
 
-Local focused run on Node 22.16.0 (13 November 2026): **7 PASS / 0 FAIL**. GitHub Actions were deliberately not executed.
+Local focused runs on Node 22.16.0 (13 November 2026): **9 PASS / 0 FAIL** (7 storage tests and 2 integration tests against the existing FactoryRunner TypeScript implementation). The TypeScript test requires the explicit experimental Node flag. GitHub Actions were deliberately not executed.
 
 ## Operational and security boundaries
 
