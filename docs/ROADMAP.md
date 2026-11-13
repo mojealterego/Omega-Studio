@@ -14,6 +14,7 @@ Baseline inspected: `main`, commit `fe74b37a097193838de5b2928e397809105650a4` (2
 | AND-06 | Signed APK release | `apksigner verify`, bootstrap gate and clean-install device E2E | BLOCKED |
 | APP-01 | Web/Android Code-NoCode builder | Reversible serialization, project export, actual web build and signed Android build | NOT VERIFIED |
 | CI-01 | Independent workflow runner | Offline workflow execution, retry, cancellation, log persistence, restart recovery | NOT VERIFIED |
+| GAME-STATE-01 | Persistent FactoryRunner checkpoints | Storage CAS, process restart, fail-closed recovery, adversarial tests | SOURCE IMPLEMENTED; 9 LOCAL HOST TESTS PASS; no Android/device or full production-worker proof |
 | SEC-01 | Tenant/workspace isolation | Symlink race, path traversal, cross-tenant and file-descriptor pinning regression tests | PARTIAL: source commits exist; test execution not independently verified |
 | API-01 | Provider API keys | Encrypted at rest, redaction, rotation and authorization tests | NOT VERIFIED |
 
@@ -32,6 +33,7 @@ Baseline inspected: `main`, commit `fe74b37a097193838de5b2928e397809105650a4` (2
 3. Assemble the signed APK and run the existing `tools/verify_android_apk_release.py` gate.
 4. Run instrumentation and E2E on an actual Android device; publish machine-readable evidence.
 5. Validate AppBuilder outputs and standalone workflow runner; then promote release only when every blocking gate passes.
+6. Integrate `FileFactoryStore` into an actual Game Factory host runtime, validate the real build worker and artifact hashes, and verify host recovery. Source and focused host evidence: `docs/GAME_FACTORY_PERSISTENCE.md`; storage tests alone do not close the production release gate.
 
 ## Constraints
 
