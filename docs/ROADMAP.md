@@ -15,7 +15,7 @@ Baseline inspected: `main`, commit `fe74b37a097193838de5b2928e397809105650a4` (2
 | APP-01 | Web/Android Code-NoCode builder | Reversible serialization, project export, actual web build and signed Android build | NOT VERIFIED |
 | CI-01 | Independent workflow runner | Offline workflow execution, retry, cancellation, log persistence, restart recovery | NOT VERIFIED |
 | GAME-STATE-01 | Persistent FactoryRunner checkpoints | Storage CAS, process restart, fail-closed recovery, adversarial tests | SOURCE IMPLEMENTED; 9 LOCAL HOST TESTS PASS; no Android/device or full production-worker proof |
-| SEC-01 | Tenant/workspace isolation | Symlink race, path traversal, cross-tenant and file-descriptor pinning regression tests | PARTIAL: source commits exist; test execution not independently verified |
+| GEO-01 | Deterministic GLS GeoWorld terrain pipeline | WGS84, DEM, GLB LOD, manifest integrity, real Game Factory world worker and Code/NoCode adapter | SOURCE IMPLEMENTED; 18 LOCAL HOST TESTS PASS; no native Unity/Unreal/Godot, Android or real DEM ingest proof |\n| SEC-01 | Tenant/workspace isolation | Symlink race, path traversal, cross-tenant and file-descriptor pinning regression tests | PARTIAL: source commits exist; test execution not independently verified |
 | API-01 | Provider API keys | Encrypted at rest, redaction, rotation and authorization tests | NOT VERIFIED |
 
 ## Evidence policy
@@ -35,6 +35,6 @@ Baseline inspected: `main`, commit `fe74b37a097193838de5b2928e397809105650a4` (2
 5. Validate AppBuilder outputs and standalone workflow runner; then promote release only when every blocking gate passes.
 6. Integrate `FileFactoryStore` into an actual Game Factory host runtime, validate the real build worker and artifact hashes, and verify host recovery. Source and focused host evidence: `docs/GAME_FACTORY_PERSISTENCE.md`; storage tests alone do not close the production release gate.
 
-## Constraints
+## GeoWorld host evidence (2026-11-14)\n\n`src/gamebuilder/GeoWorldCore.mjs` produces verified WGS84 DEM-to-GLB tiles with LOD and atomic publication. `GeoWorldStageWorker.mjs` integrates the real `world` stage into `FactoryRunner`; `GeoWorldGameBuilderAdapter.mjs` maps verified LOD0 tiles into the reversible Code/NoCode scene schema. Local Node 22 tests: 16 GeoCore + 2 integration = 18 PASS; synthetic demo: 12 GLBs parsed by trimesh and 672 triangles; pyproj reference ECEF difference 0. All other FactoryRunner stages in the integration test are simulated. No Android or engine-native build test was run. See `docs/GEO_WORLD_CORE.md`.\n\n## Constraints
 
 Work on `main`; do not create additional branches. Do not use paid GitHub Actions as a prerequisite. Never replace physical-device evidence with a simulation. This document records outstanding work, not completion.
