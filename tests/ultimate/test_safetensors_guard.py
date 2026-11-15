@@ -34,7 +34,7 @@ def test_valid_mixed_dtype_tensor_layout_and_streaming_sha(tmp_path):
     assert report.metadata == {'origin': 'test-fixture'}
     assert [(t.name, t.dtype, t.shape) for t in report.tensors] == [
         ('weights', 'F32', (2,)), ('bias', 'BF16', (2,))]
-    
+
 
 def test_accepts_empty_tensors_without_gap(tmp_path):
     path = _write_container(tmp_path / 'empty.safetensors', {
@@ -91,3 +91,5 @@ def test_rejects_symlink_to_prevent_untrusted_path_redirection(tmp_path):
     link.symlink_to(target)
     with pytest.raises(SafetensorsValidationError):
         inspect_safetensors(link)
+
+
