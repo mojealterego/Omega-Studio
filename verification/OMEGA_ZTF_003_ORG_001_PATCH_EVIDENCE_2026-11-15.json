@@ -1,0 +1,58 @@
+{
+  "android_e2e_verified": false,
+  "date": "2026-11-15",
+  "files": [
+    {
+      "bytes": 9066,
+      "path": "backend/omega_actions/ultimate/ztf_admission.py",
+      "sha256": "a8794478e9f6fba81355ad54114392667b53adc4d929ed902b3c24261a6e8e15"
+    },
+    {
+      "bytes": 2455,
+      "path": "backend/omega_actions/ultimate/c2_blending.py",
+      "sha256": "8699d92b03729fec8128b70736b35d97d6bd7b9e8dac1460472a934b4747c4b0"
+    },
+    {
+      "bytes": 6917,
+      "path": "backend/tests/test_ztf_admission.py",
+      "sha256": "3f99d7ee80c9a1a88a2c7c866396834c3ae00f6bc4c3c3f2d111c29360e9b10d"
+    },
+    {
+      "bytes": 1674,
+      "path": "backend/tests/test_c2_blending.py",
+      "sha256": "9427029e3c1f0a05bcfc9f6485a54334e11c64080049f27f1b62fb4959ed7ace"
+    },
+    {
+      "bytes": 834,
+      "path": "backend/tests/test_verify_ztf_intake_cli.py",
+      "sha256": "f7ec2f9565b4056e79e3ed7cd214891ba0c16fc8512d90af4ddb9d414300181c"
+    },
+    {
+      "bytes": 2694,
+      "path": "tools/verify_ztf_intake.py",
+      "sha256": "255078b1d8e138710e62f8055dbda19b1f6fefa09e428c38aa03686e632c9684"
+    },
+    {
+      "bytes": 7765,
+      "path": "docs/OMEGA_ZTF_003_ORG_001_INTAKE_AUDIT_2026-11-15.md",
+      "sha256": "545051750b6ff1f4bd745ca0fa9427f3b3f03a38eb90b3af0d07597b43a6d607"
+    },
+    {
+      "bytes": 1722,
+      "path": "README_INTEGRATION.md",
+      "sha256": "7b92aac356a44616625ef546b76ab18db30da0827ab31e509c0ff93a37c20be1"
+    }
+  ],
+  "host_tests_dependency_note": "Local host tests used a shim for the preexisting Omega Studio safetensors_guard; shim excluded from patch; full repository test pending",
+  "host_unit_tests_failed": 0,
+  "host_unit_tests_passed": 26,
+  "independent_lean_verification_executed": false,
+  "production_release_allowed": false,
+  "real_model_weights_in_patch": false,
+  "rust_compilation_executed": false,
+  "schema": "omega.ztf.org001.patch-evidence.v1",
+  "scope": "read-only candidate integrity admission and C2 overlap crossfade only",
+  "subject": "OMEGA OMNI ZTF 003 × ORG 001 verifiable source intake",
+  "target_branch": "main",
+  "target_repository": "mojealterego/Omega-Studio"
+}
