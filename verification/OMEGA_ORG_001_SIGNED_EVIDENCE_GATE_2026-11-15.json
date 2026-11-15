@@ -1,0 +1,31 @@
+{
+  "cryptographic_signatures_exercised": true,
+  "date": "2026-11-15",
+  "files": [
+    {
+      "bytes": 7047,
+      "path": "backend/omega_actions/ultimate/signed_evidence_gate.py",
+      "sha256": "678fd90dcb6ffa016fd6d80693578f6131df1abd5c53298935baec7f00677592"
+    },
+    {
+      "bytes": 4468,
+      "path": "backend/tests/test_signed_evidence_gate.py",
+      "sha256": "6ebac76b020ef267e9ed778dc62d8091150a13bc608cd6bf0fc6d27f4fe76377"
+    },
+    {
+      "bytes": 3022,
+      "path": "docs/OMEGA_ORG_001_SIGNED_EVIDENCE_GATE_2026-11-15.md",
+      "sha256": "b484e739a712f6d03d74b398038fa830ecf375862cbbeeb7bf22f9eba6fbbed4"
+    }
+  ],
+  "host_unit_tests_failed": 0,
+  "host_unit_tests_total_passed": 38,
+  "new_tests_passed": 12,
+  "production_authorized": false,
+  "real_lean_kernel_executed": false,
+  "real_model_e2e_executed": false,
+  "repository": "mojealterego/Omega-Studio",
+  "risk_note": "Ed25519 attestation verifies origin/integrity only; trusted worker correctness requires separate audit",
+  "schema": "omega.org001.signed-evidence-patch.v1",
+  "source_spec": "OMEGA-ZTF-003 v3.0 + Silnik Monstrum + OMEGA-ORG-001"
+}
